@@ -1,4 +1,4 @@
-group 'com.cmp.wiremockdynamicstubsextension'
+group 'com.cmp.wiremock.extension'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
@@ -10,6 +10,8 @@ repositories {
 }
 
 dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+
     compile "com.github.tomakehurst:wiremock:2.5.1"
 }
 
