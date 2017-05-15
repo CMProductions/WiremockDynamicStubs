@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.response.ValidatableResponse;
+import net.minidev.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -41,12 +42,12 @@ public class ExtensionTests {
     @Test
     public void postServeActionWiremockTest() {
         WireMockServer wiremock = new WireMockServer(wireMockConfig()
-                .extensions(new Postback()));
-
+                .extensions(new Postback())
+                .port(8886));
         wiremock.start();
 
         wiremock.stubFor(get(urlEqualTo("/fake/endpoint"))
-                .withPostServeAction("Postback", "")
+                .withPostServeAction("Postback", new JSONObject())
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/xml")
@@ -55,7 +56,7 @@ public class ExtensionTests {
         ValidatableResponse response = given()
                 .spec(new RequestSpecBuilder().build())
                 .when()
-                .get(BASE_URL + "/fake/endpoint")
+                .get("http://localhost:8886" + "/fake/endpoint")
                 .then();
 
         System.out.println("RESPONSE: " + response.extract().body().asString());
