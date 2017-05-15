@@ -17,10 +17,13 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
 
     @Override
     public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
-        System.out.println("REQUEST URL: " + request.getAbsoluteUrl());
-        System.out.println("REQUEST BODY: " + request.getBodyAsString());
-        System.out.println("PARAMETERS: " + parameters.getString("DynamicStubsParameters"));
-        System.out.println("RESPONSE DEFINITION: " + responseDefinition.getBody());
+        System.out.println("TRANSFOOOOOOOOORM");
+        System.out.println("TRANSFOOOOOOOOORM");
+        System.out.println("TRANSFOOOOOOOOORM");
+        System.out.println("TRANSFOOOOOOOOORM");
+        System.out.println("TRANSFOOOOOOOOORM");
+        System.out.println("TRANSFOOOOOOOOORM");
+        System.out.println("TRANSFOOOOOOOOORM");
         return responseDefinition;
     }
 
