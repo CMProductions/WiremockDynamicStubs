@@ -20,11 +20,10 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         System.out.println("TRANSFOOOOOOOOORM");
         System.out.println("TRANSFOOOOOOOOORM");
         System.out.println("TRANSFOOOOOOOOORM");
-        System.out.println("TRANSFOOOOOOOOORM");
-        System.out.println("TRANSFOOOOOOOOORM");
-        System.out.println("TRANSFOOOOOOOOORM");
-        System.out.println("TRANSFOOOOOOOOORM");
-        return responseDefinition;
+        System.out.println("REQUEST: " + request.getUrl());
+        System.out.println("REQUEST: " + request.getBodyAsString());
+        System.out.println("RESPONSE: " + responseDefinition.getBody());
+        return new ResponseDefinition(200, "<response>RESPONSE MODIFIED!!</response>");
     }
 
     @Override

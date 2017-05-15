@@ -6,3 +6,5 @@ gradle.properties
 gradlew
 gradlew.bat
 /bin/
+/build/reports
+/build/test-results
