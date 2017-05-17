@@ -88,4 +88,32 @@ public class ExtensionTests {
 
         wiremock.stop();
     }
+
+    @Test
+    public void postServeActionTestStandAlone() {
+        //Wiremock should be running already in localhost:8887
+
+        ValidatableResponse response = given()
+                .spec(new RequestSpecBuilder().build())
+                .when()
+                .get("http://localhost:8887" + "/fake/postAction")
+                .then();
+
+        System.out.println("RESPONSE: " + response.extract().body().asString());
+    }
+
+    @Test
+    public void responseDefinitionTransformerTestStandAlone() {
+        // Wiremock should be running already in localhost:8887
+        // you can run it executing the following command in your Wiremock directory, with the proper .jar files:
+        // java -cp "wiremockDynamicStubs-0.1.0.jar:wiremock-standalone-2.5.1.jar" com.github.tomakehurst.wiremock.standalone.WireMockServerRunner --verbose --extensions com.cmp.wiremock.extension.Postback,com.cmp.wiremock.extension.DynamicStubs --port 8887
+
+        ValidatableResponse response = given()
+                .spec(new RequestSpecBuilder().build())
+                .when()
+                .get("http://localhost:8887" + "/fake/transform")
+                .then();
+
+        System.out.println("RESPONSE: " + response.extract().body().asString());
+    }
 }
