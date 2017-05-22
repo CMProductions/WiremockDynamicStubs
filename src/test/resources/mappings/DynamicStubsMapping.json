@@ -12,10 +12,19 @@
                                 "transformXmlNode" : [{
                                         "xpath" : "//Name/First/text()",
                                         "newValue" : "NEW NAME"
-                                },{
+                                        },{
                                         "xpath" : "//Name/Last/text()",
-                                        "newValue" : "LAST NAME"
-                                }]
+                                        "randomValue" : "RANDOM_STRING"
+                                        },{
+                                        "xpath" : "//Name/Last/text()",
+                                        "valueFromQueryParameter" : "name"
+                                        }
+                                ],
+                                "transformJsonNode" : [{
+                                        "jsonPath" : "name.first",
+                                        "randomValue" : "RANDOM_STRING"
+                                        }
+                                ]
                         },
                         "otherParameters" : {
 

@@ -1,5 +1,7 @@
 package com.cmp.wiremock.extension;
 
+import com.cmp.wiremock.extension.enums.DSValueType;
+import com.cmp.wiremock.extension.utils.DSUtils;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -9,6 +11,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.xml.sax.InputSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -27,6 +30,7 @@ import javax.xml.xpath.XPathFactory;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 
 import static com.google.common.base.Charsets.UTF_8;
 
@@ -47,17 +51,18 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
 
         try {
             if(bodyFileName != null && dynamicStubsParameters!= null) {
-                System.out.println("PARAMETERS: " + dynamicStubsParameters.toString());
                 if(isXmlFile(bodyFileName)) {
                     JSONArray xmlParams = xmlParameters(dynamicStubsParameters);
-                    newResponse = transformXmlResponse(request, responseDefinition, files, parameters);
+                    newResponse = transformXmlResponse(request, responseDefinition, files, xmlParams);
                 }
                 if (isJsonFile(bodyFileName)) {
-                    newResponse = transformJsonResponse(request, responseDefinition, files, parameters);
+                    JSONArray jsonParams = jsonParameters(dynamicStubsParameters);
+                    newResponse = transformJsonResponse(request, responseDefinition, files, jsonParams);
                 }
             }
         } catch(Exception e) {
             System.out.println("Unable to transform Response");
+            System.out.println(e.getMessage());
         }
 
         return newResponse;
@@ -78,10 +83,21 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return fileName.endsWith(".json");
     }
 
-    private ResponseDefinition transformXmlResponse(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) throws Exception {
+    private ResponseDefinition transformXmlResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
         String xmlString = parseFileToString(files.getBinaryFileNamed(responseDefinition.getBodyFileName()));
         Document xmlDocument = parseStringToDocument(xmlString);
-        updateMatchingNodesLocatedByXpath(xmlDocument, "//Name/First/text()", "NEW NAME");
+
+        parameters.forEach(item -> {
+            JSONObject element = (JSONObject) item;
+            try {
+                String newValue = getNewValue(request, element);
+                updateMatchingNodesLocatedByXpath(xmlDocument, element.getString("xpath"), newValue);
+            } catch (Exception e) {
+                System.out.println("FAIL");
+                System.out.println(e.getMessage());
+                System.out.println(e.getStackTrace());
+            }
+        });
 
         String newBodyResponse = parseDocumentToString(xmlDocument);
         return ResponseDefinitionBuilder
@@ -93,20 +109,29 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private JSONArray xmlParameters(Object parameters) {
-        Parameters params = (Parameters)parameters;
-        Object xmlParams = params.getOrDefault("transformXmlNode", null);
-
-        if(xmlParams != null) {
-            System.out.println("XML PARAMETERS: " + params.toString());
-        }
-        else {
-            System.out.println("NUUUUUUUUUUUUUUUUUUUUUUULL");
-        }
-
-        return new JSONArray();
+        return parseObjectToJsonArray(parameters, "transformXmlNode");
     }
 
-    private ResponseDefinition transformJsonResponse(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
+    private JSONArray jsonParameters(Object parameters) {
+        return parseObjectToJsonArray(parameters, "transformJsonNode");
+    }
+
+    private JSONArray parseObjectToJsonArray(Object parameters, String paramKey) {
+        Parameters allParameters = Parameters.of(parameters);
+        Object xmlParameters = allParameters.getOrDefault(paramKey, null);
+        JSONArray formattedXmlParameters = new JSONArray();
+
+        if(xmlParameters != null) {
+            String jsonString = xmlParameters.toString()
+                    .replaceAll("(?! )(?<=[=\\[\\]{}, ])([^\\[\\]{}=,]+?)(?=[=\\[{}\\],])", "\"$1\"")
+                    .replaceAll("=", ":");
+            formattedXmlParameters = new JSONArray(jsonString);
+        }
+
+        return formattedXmlParameters;
+    }
+
+    private ResponseDefinition transformJsonResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) {
         //TODO: Implementar
         return ResponseDefinitionBuilder
                 .like(responseDefinition)
@@ -148,6 +173,45 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         for(int i = 0; i < matchingNodes.getLength(); i++) {
             matchingNodes.item(i).setNodeValue(newValue);
         }
+    }
 
+    private static void updateMatchingNodesLocatedByNodeName(Document document, String nodeName, String newValue) throws Exception{
+        updateMatchingNodesLocatedByXpath(document, "//" + nodeName, newValue);
+    }
+
+    private static String getNewValue(Request request, JSONObject parameters) throws Exception{
+        System.out.println("PARAMETERS: " + parameters.toString());
+        if(parameters.has(DSValueType.NEW.getKey())) {
+            return parameters.getString(DSValueType.NEW.getKey());
+        }
+        if(parameters.has(DSValueType.RANDOM.getKey())) {
+            return getRandomValue(parameters.getString(DSValueType.RANDOM.getKey()));
+        }
+        if(parameters.has(DSValueType.RANDOM.getKey())) {
+            return getRandomValue(parameters.getString(DSValueType.RANDOM.getKey()));
+        }
+        if(parameters.has(DSValueType.FROM_QUERY_STRING.getKey())) {
+            return getFromQuery(request.getUrl(), parameters.getString(DSValueType.FROM_QUERY_STRING.getKey()));
+        }
+        if(parameters.has(DSValueType.FROM_BODY_JSON.getKey())) {
+            return getFromQuery(request.getBodyAsString(), parameters.getString(DSValueType.FROM_BODY_JSON.getKey()));
+        }
+
+        throw new Exception("No value found");
+    }
+
+    private static String getRandomValue(String randomType) {
+        //TODO: Ampliar implementacion
+        return String.valueOf(System.currentTimeMillis());
+    }
+
+    private static String getFromQuery(String requestURL, String queryParameter) throws Exception{
+        Map<String, String> queryParameters;
+        queryParameters = DSUtils.splitQuery(requestURL);
+        return queryParameters.get(queryParameter);
+    }
+    private static String getJsonBody(String requestBody, String jsonPath) throws Exception{
+        //TODO: Implementar
+        return "";
     }
 }

@@ -102,7 +102,7 @@ public class ExtensionTests {
         ValidatableResponse response = given()
                 .spec(new RequestSpecBuilder().build())
                 .when()
-                .get("http://localhost:8886" + "/fake/transform")
+                .get("http://localhost:8886" + "/fake/transform?name=Arturo&other=3")
                 .then();
 
         System.out.println("RESPONSE: " + response.extract().body().asString());
