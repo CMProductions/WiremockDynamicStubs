@@ -2,6 +2,8 @@ package com.cmp.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.response.ValidatableResponse;
 import net.minidev.json.JSONObject;
@@ -82,6 +84,25 @@ public class ExtensionTests {
                 .spec(new RequestSpecBuilder().build())
                 .when()
                 .get("http://localhost:8886" + "/fake/endpoint")
+                .then();
+
+        System.out.println("RESPONSE: " + response.extract().body().asString());
+
+        wiremock.stop();
+    }
+
+    @Test
+    public void responseDefinitionTransformerFromJsonMappingTest() {
+        WireMockServer wiremock = new WireMockServer(wireMockConfig()
+                .extensions(new DynamicStubs())
+                .port(8886));
+        wiremock.start();
+        wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
+
+        ValidatableResponse response = given()
+                .spec(new RequestSpecBuilder().build())
+                .when()
+                .get("http://localhost:8886" + "/fake/transform")
                 .then();
 
         System.out.println("RESPONSE: " + response.extract().body().asString());

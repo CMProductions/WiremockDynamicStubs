@@ -1,5 +1,6 @@
 package com.cmp.wiremock.extension;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -7,12 +8,12 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
+import org.json.JSONArray;
 import org.xml.sax.InputSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -40,67 +41,26 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
 
     @Override
     public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
+        ResponseDefinition newResponse = responseDefinition;
+        String bodyFileName = responseDefinition.getBodyFileName();
+        Object dynamicStubsParameters = parameters.getOrDefault("dynamicStubsParameters", null);
 
-        System.out.println("TRANSFOOOOOOOOORM");
-        System.out.println("TRANSFOOOOOOOOORM");
-        System.out.println("TRANSFOOOOOOOOORM");
-        System.out.println("REQUEST: " + request.getUrl());
-        System.out.println("REQUEST BODY: " + request.getBodyAsString());
         try {
-            System.out.println("RESPONSE: " + responseDefinition.toString());
+            if(bodyFileName != null && dynamicStubsParameters!= null) {
+                System.out.println("PARAMETERS: " + dynamicStubsParameters.toString());
+                if(isXmlFile(bodyFileName)) {
+                    JSONArray xmlParams = xmlParameters(dynamicStubsParameters);
+                    newResponse = transformXmlResponse(request, responseDefinition, files, parameters);
+                }
+                if (isJsonFile(bodyFileName)) {
+                    newResponse = transformJsonResponse(request, responseDefinition, files, parameters);
+                }
+            }
         } catch(Exception e) {
-            System.out.println("No response to print");
+            System.out.println("Unable to transform Response");
         }
-        try {
-            System.out.println("RESPONSE BODY: " + responseDefinition.getBody());
-        } catch(Exception e) {
-            System.out.println("No response body to print");
-        }
-        try {
-            /******** This parses given response from file to String  *********/
-            BinaryFile bodyFile = files.getBinaryFileNamed(responseDefinition.getBodyFileName());
-            byte[] bodyBytes = bodyFile.readContents();
-            String bodyString = new String(bodyBytes, UTF_8);
-            /******** This parses given response from file to String  *********/
-            System.out.println("BINARY RESPONSE BODY: " + bodyString);
 
-            Document xmlDocument = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(new InputSource(new StringReader(bodyString)));
-
-            System.out.println("DOCUMENT: " + documentToString(xmlDocument));
-
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            NodeList myNodeList = (NodeList) xpath.compile("//Name/First/text()")
-                    .evaluate(xmlDocument, XPathConstants.NODESET);
-            myNodeList.item(0).setNodeValue("NEW NAME");
-
-            System.out.println("DOCUMENT: " + documentToString(xmlDocument));
-        } catch(Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace());
-        }
-        try {
-            System.out.println("FILENAME: " + responseDefinition.getBodyFileName());
-        } catch(Exception e) {
-            System.out.println("No filename to print");
-        }
-        try {
-            System.out.println("PARAMETERS: " + parameters.toString());
-        } catch(Exception e) {
-            System.out.println("No parameters to print");
-        }
-        try {
-            System.out.println("FILESOURCE: " + files.toString());
-        } catch(Exception e) {
-            System.out.println("No filesource to print");
-        }
-        try {
-            System.out.println("FILE CONTENT: " + files.getTextFileNamed(responseDefinition.getBodyFileName()).toString());
-        } catch(Exception e) {
-            System.out.println("No file content to print");
-        }
-        return new ResponseDefinition(200, "<response>RESPONSE MODIFIED!!</response>");
+        return newResponse;
     }
 
     @Override
@@ -108,24 +68,86 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return false;
     }
 
+    private static boolean isXmlFile(String fileName) {
+        //TODO: Mejorar esto
+        return fileName.endsWith(".xml");
+    }
 
-    private static String documentToString(Document document) {
-        try {
-            Transformer transformer = TransformerFactory.newInstance()
-                    .newTransformer();
+    private static boolean isJsonFile(String fileName) {
+        //TODO: Mejorar esto
+        return fileName.endsWith(".json");
+    }
 
-            Source source = new DOMSource(document);
-            StringWriter writer = new StringWriter();
-            Result destination = new StreamResult(writer);
+    private ResponseDefinition transformXmlResponse(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) throws Exception {
+        String xmlString = parseFileToString(files.getBinaryFileNamed(responseDefinition.getBodyFileName()));
+        Document xmlDocument = parseStringToDocument(xmlString);
+        updateMatchingNodesLocatedByXpath(xmlDocument, "//Name/First/text()", "NEW NAME");
 
-            transformer.transform(source, destination);
+        String newBodyResponse = parseDocumentToString(xmlDocument);
+        return ResponseDefinitionBuilder
+                .like(responseDefinition)
+                .but()
+                .withBodyFile(null)
+                .withBody(newBodyResponse)
+                .build();
+    }
 
-            return writer.toString();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace());
+    private JSONArray xmlParameters(Object parameters) {
+        Parameters params = (Parameters)parameters;
+        Object xmlParams = params.getOrDefault("transformXmlNode", null);
+
+        if(xmlParams != null) {
+            System.out.println("XML PARAMETERS: " + params.toString());
+        }
+        else {
+            System.out.println("NUUUUUUUUUUUUUUUUUUUUUUULL");
         }
 
-        return "";
+        return new JSONArray();
+    }
+
+    private ResponseDefinition transformJsonResponse(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
+        //TODO: Implementar
+        return ResponseDefinitionBuilder
+                .like(responseDefinition)
+                .but()
+                .withBody("THIS SHOULD BE A JSON")
+                .build();
+    }
+
+    private static String parseFileToString(BinaryFile file) {
+        byte[] fileBytes = file.readContents();
+
+        return new String(fileBytes, UTF_8);
+    }
+
+    private static Document parseStringToDocument(String xmlString) throws Exception {
+        return DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
+                .parse(new InputSource(new StringReader(xmlString)));
+    }
+
+    private static String parseDocumentToString(Document document) throws Exception {
+        Transformer transformer = TransformerFactory.newInstance()
+                .newTransformer();
+
+        Source source = new DOMSource(document);
+        StringWriter writer = new StringWriter();
+        Result destination = new StreamResult(writer);
+
+        transformer.transform(source, destination);
+
+        return writer.toString();
+    }
+
+    private static void updateMatchingNodesLocatedByXpath(Document document, String xpathExpression, String newValue) throws Exception{
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        NodeList matchingNodes = (NodeList) xpath.compile(xpathExpression)
+                .evaluate(document, XPathConstants.NODESET);
+
+        for(int i = 0; i < matchingNodes.getLength(); i++) {
+            matchingNodes.item(i).setNodeValue(newValue);
+        }
+
     }
 }
