@@ -1,0 +1,32 @@
+{
+        "priority": 10,
+        "request": {
+                "method": "GET",
+                "urlPath": "/fake/transform"
+                },
+        "response":{
+                "status": 200,
+                "transformers": ["DynamicStubs"],
+                "transformerParameters" : {
+                        "dynamicStubsParameters" : {
+                                "transformXmlNode" : [{
+                                        "xpath" : "//Name/First/text()",
+                                        "newValue" : "NEW NAME"
+                                },{
+                                        "xpath" : "//Name/Last/text()",
+                                        "newValue" : "LAST NAME"
+                                }]
+                        },
+                        "otherParameters" : {
+
+                        }
+                },
+                "bodyFileName" : "TEMPLATE.xml"
+        },
+        "postServeActions": {
+                "Postback": {
+                "baseUrl": "sdflkwejfñlwkefjlwñkefñlkweflkwjef"
+                }
+        }
+}
+c
