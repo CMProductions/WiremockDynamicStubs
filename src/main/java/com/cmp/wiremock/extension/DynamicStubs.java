@@ -2,8 +2,8 @@ package com.cmp.wiremock.extension;
 
 import com.cmp.wiremock.extension.enums.DSValueType;
 import com.cmp.wiremock.extension.utils.DSUtils;
+import com.cmp.wiremock.extension.utils.XmlParser;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
@@ -12,27 +12,14 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.xml.sax.InputSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Map;
-
-import static com.google.common.base.Charsets.UTF_8;
 
 /**
  * Created by lunabulnes
@@ -84,8 +71,10 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private ResponseDefinition transformXmlResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
-        String xmlString = parseFileToString(files.getBinaryFileNamed(responseDefinition.getBodyFileName()));
-        Document xmlDocument = parseStringToDocument(xmlString);
+        Document xmlDocument = XmlParser.aXmlObjectFromBinaryFile(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
+                .parseBinaryFileToString()
+                .parseStringToDocument()
+                .getAsDocument();
 
         parameters.forEach(item -> {
             JSONObject element = (JSONObject) item;
@@ -99,7 +88,9 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             }
         });
 
-        String newBodyResponse = parseDocumentToString(xmlDocument);
+        String newBodyResponse = XmlParser.aXmlObjectFromDocument(xmlDocument)
+                .parseDocumentToString()
+                .getAsString();
         return ResponseDefinitionBuilder
                 .like(responseDefinition)
                 .but()
@@ -140,47 +131,25 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 .build();
     }
 
-    private static String parseFileToString(BinaryFile file) {
-        byte[] fileBytes = file.readContents();
-
-        return new String(fileBytes, UTF_8);
-    }
-
-    private static Document parseStringToDocument(String xmlString) throws Exception {
-        return DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(new InputSource(new StringReader(xmlString)));
-    }
-
-    private static String parseDocumentToString(Document document) throws Exception {
-        Transformer transformer = TransformerFactory.newInstance()
-                .newTransformer();
-
-        Source source = new DOMSource(document);
-        StringWriter writer = new StringWriter();
-        Result destination = new StreamResult(writer);
-
-        transformer.transform(source, destination);
-
-        return writer.toString();
-    }
-
-    private static void updateMatchingNodesLocatedByXpath(Document document, String xpathExpression, String newValue) throws Exception{
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        NodeList matchingNodes = (NodeList) xpath.compile(xpathExpression)
-                .evaluate(document, XPathConstants.NODESET);
+    private static void updateMatchingNodesLocatedByXpath(Document document, String xpath, String newValue) throws Exception {
+        NodeList matchingNodes = getMatchingNodes(document, xpath);
 
         for(int i = 0; i < matchingNodes.getLength(); i++) {
             matchingNodes.item(i).setNodeValue(newValue);
         }
     }
 
-    private static void updateMatchingNodesLocatedByNodeName(Document document, String nodeName, String newValue) throws Exception{
+    private static NodeList getMatchingNodes(Document document, String xpathExpression) throws Exception {
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        return (NodeList) xpath.compile(xpathExpression)
+                .evaluate(document, XPathConstants.NODESET);
+    }
+
+    private static void updateMatchingNodesLocatedByNodeName(Document document, String nodeName, String newValue) throws Exception {
         updateMatchingNodesLocatedByXpath(document, "//" + nodeName, newValue);
     }
 
     private static String getNewValue(Request request, JSONObject parameters) throws Exception{
-        System.out.println("PARAMETERS: " + parameters.toString());
         if(parameters.has(DSValueType.NEW.getKey())) {
             return parameters.getString(DSValueType.NEW.getKey());
         }
@@ -227,8 +196,12 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return "";
     }
 
-    private static String getFromXml(String requestBody, String jsonPath) throws Exception{
-        //TODO: Implementar
-        return "";
+    private static String getFromXml(String requestBody, String xpath) throws Exception{
+        Document xmlRequest = XmlParser.aXmlObjectFromString(requestBody)
+                .parseStringToDocument()
+                .getAsDocument();
+
+        NodeList matchingNodes = getMatchingNodes(xmlRequest, xpath);
+        return matchingNodes.item(0).getNodeValue();
     }
 }
