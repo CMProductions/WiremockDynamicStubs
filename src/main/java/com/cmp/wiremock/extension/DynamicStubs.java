@@ -194,7 +194,13 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             return getFromQuery(request.getUrl(), parameters.getString(DSValueType.FROM_QUERY_STRING.getKey()));
         }
         if(parameters.has(DSValueType.FROM_BODY_JSON.getKey())) {
-            return getFromQuery(request.getBodyAsString(), parameters.getString(DSValueType.FROM_BODY_JSON.getKey()));
+            return getFromJsonBody(request.getBodyAsString(), parameters.getString(DSValueType.FROM_BODY_JSON.getKey()));
+        }
+        if(parameters.has(DSValueType.FROM_BODY_JSONARRAY.getKey())) {
+            return getFromJsonArray(request.getBodyAsString(), parameters.getString(DSValueType.FROM_BODY_JSONARRAY.getKey()));
+        }
+        if(parameters.has(DSValueType.FROM_BODY_XML.getKey())) {
+            return getFromXml(request.getBodyAsString(), parameters.getString(DSValueType.FROM_BODY_XML.getKey()));
         }
 
         throw new Exception("No value found");
@@ -210,7 +216,18 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         queryParameters = DSUtils.splitQuery(requestURL);
         return queryParameters.get(queryParameter);
     }
-    private static String getJsonBody(String requestBody, String jsonPath) throws Exception{
+
+    private static String getFromJsonBody(String requestBody, String jsonPath) throws Exception{
+        //TODO: Implementar
+        return "";
+    }
+
+    private static String getFromJsonArray(String requestBody, String jsonPath) throws Exception{
+        //TODO: Implementar
+        return "";
+    }
+
+    private static String getFromXml(String requestBody, String jsonPath) throws Exception{
         //TODO: Implementar
         return "";
     }
