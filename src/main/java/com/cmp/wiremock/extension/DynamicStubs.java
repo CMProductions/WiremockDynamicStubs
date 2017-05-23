@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
@@ -20,6 +21,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by lunabulnes
@@ -71,7 +74,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private ResponseDefinition transformXmlResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
-        Document xmlDocument = XmlParser.aXmlObjectFromBinaryFile(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
+        Document xmlDocument = XmlParser.fromBinaryFile(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
                 .parseBinaryFileToString()
                 .parseStringToDocument()
                 .getAsDocument();
@@ -88,7 +91,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             }
         });
 
-        String newBodyResponse = XmlParser.aXmlObjectFromDocument(xmlDocument)
+        String newBodyResponse = XmlParser.fromDocument(xmlDocument)
                 .parseDocumentToString()
                 .getAsString();
         return ResponseDefinitionBuilder
@@ -149,7 +152,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         updateMatchingNodesLocatedByXpath(document, "//" + nodeName, newValue);
     }
 
-    private static String getNewValue(Request request, JSONObject parameters) throws Exception{
+    private static String getNewValue(Request request, JSONObject parameters) throws Exception {
         if(parameters.has(DSValueType.NEW.getKey())) {
             return parameters.getString(DSValueType.NEW.getKey());
         }
@@ -171,6 +174,13 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         if(parameters.has(DSValueType.FROM_BODY_XML.getKey())) {
             return getFromXml(request.getBodyAsString(), parameters.getString(DSValueType.FROM_BODY_XML.getKey()));
         }
+        if(parameters.has(DSValueType.FROM_BODY_PLAINTEXT.getKey())) {
+            return getFromPlainText(request.getBodyAsString(), parameters.getString(DSValueType.FROM_BODY_XML.getKey()));
+        }
+        if(parameters.has(DSValueType.FROM_HEADER.getKey())) {
+            return request.getHeaders();
+        }
+
 
         throw new Exception("No value found");
     }
@@ -197,11 +207,27 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private static String getFromXml(String requestBody, String xpath) throws Exception{
-        Document xmlRequest = XmlParser.aXmlObjectFromString(requestBody)
+        Document xmlRequest = XmlParser.fromString(requestBody)
                 .parseStringToDocument()
                 .getAsDocument();
 
-        NodeList matchingNodes = getMatchingNodes(xmlRequest, xpath);
-        return matchingNodes.item(0).getNodeValue();
+        return getMatchingNodes(xmlRequest, xpath)
+                .item(0)
+                .getNodeValue();
+    }
+
+    private static String getFromPlainText(String requestBody, String regex) throws Exception{
+        Pattern regexPattern = Pattern.compile(regex);
+        Matcher regexMatcher = regexPattern.matcher(requestBody);
+
+        if (regexMatcher.find()) {
+            return regexMatcher.group(0);
+        }
+
+        throw new Exception("No match found");
+    }
+
+    private static String getFromHeader(HttpHeaders requestHeaders, String headerKey) throws Exception{
+        return requestHeaders.getHeader(headerKey).toString();
     }
 }

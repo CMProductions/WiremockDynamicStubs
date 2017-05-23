@@ -9,16 +9,16 @@ import java.util.Map;
  */
 public class DSUtils {
     public static Map<String, String> splitQuery(String url) throws Exception {
-        Map<String, String> queryPairs = new LinkedHashMap<String, String>();
+        Map<String, String> queryMap = new LinkedHashMap<String, String>();
 
         int queryIndex = url.indexOf('?');
-        String queryString = url.substring(queryIndex + 1);
-        String[] pairs = queryString.split("&");
+        String[] pairs = url.substring(queryIndex + 1)
+                .split("&");
 
         for (String pair : pairs) {
             int splitIndex = pair.indexOf("=");
-            queryPairs.put(URLDecoder.decode(pair.substring(0, splitIndex), "UTF-8"), URLDecoder.decode(pair.substring(splitIndex + 1), "UTF-8"));
+            queryMap.put(URLDecoder.decode(pair.substring(0, splitIndex), "UTF-8"), URLDecoder.decode(pair.substring(splitIndex + 1), "UTF-8"));
         }
-        return queryPairs;
+        return queryMap;
     }
 }

@@ -1,44 +1,50 @@
 {
-        "priority": 10,
-        "request": {
-                "method": "POST",
-                "urlPath": "/fake/transform"
-                },
+        "priority":10,
+        "request":{
+                "method":"POST",
+                "urlPath":"/fake/transform"
+        },
         "response":{
-                "status": 200,
-                "transformers": ["DynamicStubs"],
-                "transformerParameters" : {
-                        "dynamicStubsParameters" : {
-                                "transformXmlNode" : [{
-                                        "xpath" : "//Name/First/text()",
-                                        "newValue" : "NEW NAME"
-                                        },{
-                                        "xpath" : "//Name/Last/text()",
-                                        "randomValue" : "RANDOM_STRING"
-                                        },{
-                                        "xpath" : "//Name/Last/text()",
-                                        "valueFromQueryParameter" : "name"
-                                        },{
-                                        "xpath" : "//First/text()",
-                                        "valueFromBodyXpath" : "//OffenderId/text()"
+                "status":200,
+                "transformers":[
+                        "DynamicStubs"
+                ],
+                "transformerParameters":{
+                        "dynamicStubsParameters":{
+                                "transformXmlNode":[
+                                        {
+                                                "xpath":"//Name/First/text()",
+                                                "newValue":"New Name"
+                                        },
+                                        {
+                                                "xpath":"//Name/Last/text()",
+                                                "randomValue":"RANDOM_STRING"
+                                        },
+                                        {
+                                                "xpath":"//Name/Last/text()",
+                                                "valueFromQueryParameter":"name"
+                                        },
+                                        {
+                                                "xpath":"//First/text()",
+                                                "valueFromBodyXpath":"//OffenderId/text()"
                                         }
                                 ],
-                                "transformJsonNode" : [{
-                                        "jsonPath" : "name.first",
-                                        "randomValue" : "RANDOM_STRING"
+                                "transformJsonNode":[
+                                        {
+                                                "jsonPath":"name.first",
+                                                "randomValue":"RANDOM_STRING"
                                         }
                                 ]
                         },
-                        "otherParameters" : {
+                        "otherParameters":{
 
                         }
                 },
-                "bodyFileName" : "TEMPLATE.xml"
+                "bodyFileName":"TEMPLATE.xml"
         },
-        "postServeActions": {
-                "Postback": {
-                "baseUrl": "sdflkwejfñlwkefjlwñkefñlkweflkwjef"
+        "postServeActions":{
+                "Postback":{
+                        "baseUrl":"http://thiscouldbe.com/whatever"
                 }
         }
 }
-c

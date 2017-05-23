@@ -27,19 +27,19 @@ public class XmlParser {
         this.xmlObject = xmlObject;
     }
 
-    public static XmlParser aXmlObjectFromBinaryFile(BinaryFile xmlObject) {
+    public static XmlParser fromBinaryFile(BinaryFile xmlObject) {
         return new XmlParser(xmlObject);
     }
 
-    public static XmlParser aXmlObjectFromByteArray(byte[] xmlObject) {
+    public static XmlParser fromByteArray(byte[] xmlObject) {
         return new XmlParser(xmlObject);
     }
 
-    public static XmlParser aXmlObjectFromString(String xmlObject) {
+    public static XmlParser fromString(String xmlObject) {
         return new XmlParser(xmlObject);
     }
 
-    public static XmlParser aXmlObjectFromDocument(Document xmlObject) {
+    public static XmlParser fromDocument(Document xmlObject) {
         return new XmlParser(xmlObject);
     }
 
