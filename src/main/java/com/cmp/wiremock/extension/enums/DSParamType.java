@@ -7,8 +7,8 @@ public enum DSParamType {
 
     //Set value params
     BY_XPATH("xpath"),
-    BY_NODENAME("nodeName"),
-    BY_JSONPATH("jsonPath"),
+    BY_NODE_NAME("nodeName"),
+    BY_JSON_PATH("jsonPath"),
     BY_JSON_KEY("jsonKey"),
 
     //Get value params

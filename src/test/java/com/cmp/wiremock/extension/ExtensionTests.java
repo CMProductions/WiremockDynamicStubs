@@ -103,7 +103,7 @@ public class ExtensionTests {
                 .spec(new RequestSpecBuilder().build())
                 .body("<Records><Record><DataSource>Criminal Court</DataSource><OffenderId>FAKE-OFFENDER-ID-0000000001</OffenderId><Name><First>TESTGUY</First><Middle></Middle><Last>SOMETHING</Last></Name></Record></Records>")
                 .when()
-                .post("http://localhost:8886" + "/fake/transform?name=Arturo&other=3")
+                .post("http://localhost:8886" + "/fake/xml/transform?name=Arturo&other=3")
                 .then();
 
         System.out.println("RESPONSE: " + response.extract().body().asString());

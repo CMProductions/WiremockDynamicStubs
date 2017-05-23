@@ -2,7 +2,7 @@ package com.cmp.wiremock.extension;
 
 import com.cmp.wiremock.extension.enums.DSParamType;
 import com.cmp.wiremock.extension.utils.DSUtils;
-import com.cmp.wiremock.extension.utils.XmlParser;
+import com.cmp.wiremock.extension.utils.DataParser;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -75,8 +76,16 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return fileName.endsWith(".json");
     }
 
+    private JSONArray xmlParameters(Object parameters) {
+        return parseObjectToJsonArray(parameters, "transformXmlNode");
+    }
+
+    private JSONArray jsonParameters(Object parameters) {
+        return parseObjectToJsonArray(parameters, "transformJsonNode");
+    }
+
     private ResponseDefinition transformXmlResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
-        Document xmlTemplate = XmlParser.fromBinaryFile(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
+        Document xmlTemplate = DataParser.fromBinaryFile(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
                 .parseBinaryFileToString()
                 .parseStringToDocument()
                 .getAsDocument();
@@ -91,7 +100,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             }
         });
 
-        String newBodyResponse = XmlParser.fromDocument(xmlTemplate)
+        String newBodyResponse = DataParser.fromDocument(xmlTemplate)
                 .parseDocumentToString()
                 .getAsString();
 
@@ -103,14 +112,6 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 .build();
     }
 
-    private JSONArray xmlParameters(Object parameters) {
-        return parseObjectToJsonArray(parameters, "transformXmlNode");
-    }
-
-    private JSONArray jsonParameters(Object parameters) {
-        return parseObjectToJsonArray(parameters, "transformJsonNode");
-    }
-
     private JSONArray parseObjectToJsonArray(Object parameters, String paramKey) {
         Parameters allParameters = Parameters.of(parameters);
         Object specificParameters = allParameters.getOrDefault(paramKey, null);
@@ -118,7 +119,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
 
         if(specificParameters != null) {
             String jsonString = specificParameters.toString()
-                    .replaceAll("(?! )(?<=[={}, ])([^{}=,]+?)(?=[{}=,])", "\"$1\"")
+                    .replaceAll("(?! )(?!\\[)(?!])(?<=[={}, ])([^{},]+?)(?=[{}=,])", "\"$1\"")
                     .replaceAll("=", ":");
             formattedParameters = new JSONArray(jsonString);
         }
@@ -126,23 +127,33 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return formattedParameters;
     }
 
-    private ResponseDefinition transformJsonResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) {
-        //TODO: Implementar
+    private ResponseDefinition transformJsonResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
+        String jsonString = DataParser.fromBinaryFile(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
+                .parseBinaryFileToString()
+                .getAsString();
+        JSONObject jsonTemplate = new JSONObject(jsonString);
+
+        for(int i = 0; i < parameters.length(); i++) {
+            String newValue = getNewValue(request, parameters.getJSONObject(i));
+            jsonTemplate = updateJsonTemplateValues(jsonTemplate, parameters.getJSONObject(i), newValue);
+        }
+
         return ResponseDefinitionBuilder
                 .like(responseDefinition)
                 .but()
-                .withBody("THIS SHOULD BE A JSON")
+                .withBodyFile(null)
+                .withBody(jsonTemplate.toString())
                 .build();
     }
 
-    private static void updateXmlTemplateValues(Document document, JSONObject parameter, String newValue) throws Exception {
+    private static void updateXmlTemplateValues(Document template, JSONObject parameter, String newValue) throws Exception {
         NodeList nodeList = null;
 
         if(parameter.has(DSParamType.BY_XPATH.getKey())) {
-            nodeList = getMatchingNodesByXpath(document, parameter.getString(DSParamType.BY_XPATH.getKey()));
+            nodeList = getMatchingNodesByXpath(template, parameter.getString(DSParamType.BY_XPATH.getKey()));
         }
-        if(parameter.has(DSParamType.BY_NODENAME.getKey())) {
-            nodeList = getMatchingNodesByNodeName(document, parameter.getString(DSParamType.BY_NODENAME.getKey()));
+        if(parameter.has(DSParamType.BY_NODE_NAME.getKey())) {
+            nodeList = getMatchingNodesByNodeName(template, parameter.getString(DSParamType.BY_NODE_NAME.getKey()));
         }
 
         if (nodeList != null) {
@@ -166,6 +177,23 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
 
     private static NodeList getMatchingNodesByNodeName(Document document, String nodeName) throws Exception {
         return getMatchingNodesByXpath(document, "//" + nodeName);
+    }
+
+    private static JSONObject updateJsonTemplateValues(JSONObject template, JSONObject parameter, String newValue) throws Exception {
+        if(parameter.has(DSParamType.BY_JSON_PATH.getKey())) {
+            return updateJsonByPath(template, parameter, newValue);
+        }
+        if(parameter.has(DSParamType.BY_JSON_KEY.getKey())) {
+            return template.put(parameter.getString(DSParamType.BY_JSON_KEY.getKey()), newValue);
+        }
+        throw new Exception("No matching nodes found");
+    }
+
+    private static JSONObject updateJsonByPath(JSONObject template, JSONObject parameter, String newValue) throws Exception {
+        DocumentContext jsonTemplate = JsonPath.parse(template.toString());
+        jsonTemplate.set(parameter.getString(DSParamType.BY_JSON_PATH.getKey()), newValue);
+
+        return new JSONObject(jsonTemplate.jsonString());
     }
 
     private static String getNewValue(Request request, JSONObject parameter) throws Exception {
@@ -227,7 +255,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private static String getFromXml(String requestBody, String xpath) throws Exception {
-        Document xmlRequest = XmlParser.fromString(requestBody)
+        Document xmlRequest = DataParser.fromString(requestBody)
                 .parseStringToDocument()
                 .getAsDocument();
 

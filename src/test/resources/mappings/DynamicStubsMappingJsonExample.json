@@ -36,8 +36,8 @@
                                 ],
                                 "transformJsonNode":[
                                         {
-                                                "jsonPath":"name.first",
-                                                "GetRandomValue":"RANDOM_STRING"
+                                                "jsonPath":"$.Records.Record.Name.First",
+                                                "getNewValue":"LET'S SEE WHAT HAPPENS"
                                         }
                                 ]
                         },
@@ -45,7 +45,7 @@
 
                         }
                 },
-                "bodyFileName":"TEMPLATE.xml"
+                "bodyFileName":"TEMPLATE.json"
         },
         "postServeActions":{
                 "Postback":{

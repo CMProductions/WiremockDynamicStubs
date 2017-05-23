@@ -14,38 +14,38 @@
                                 "transformXmlNode":[
                                         {
                                                 "xpath":"//Name/First/text()",
-                                                "newValue":"New Name"
+                                                "getNewValue":"New Name"
                                         },
                                         {
                                                 "xpath":"//Name/Last/text()",
-                                                "randomValue":"RANDOM_STRING"
+                                                "getRandomValue":"RANDOM_STRING"
                                         },
                                         {
                                                 "xpath":"//Name/Last/text()",
-                                                "valueFromQueryParameter":"name"
+                                                "getFromQueryParameter":"name"
                                         },
                                         {
                                                 "xpath":"//First/text()",
-                                                "valueFromBodyXpath":"//OffenderId/text()"
+                                                "getFromBodyXpath":"//OffenderId/text()"
                                         },
                                         {
                                                 "xpath":"//First/text()",
                                                 "compoundValue":[
                                                         {
                                                                 "xpath":"//Name/First/text()",
-                                                                "newValue":"New Name"
+                                                                "getNewValue":"New Name"
                                                         },
                                                         {
                                                                 "xpath":"//Name/Last/text()",
-                                                                "randomValue":"RANDOM_STRING"
+                                                                "getRandomValue":"RANDOM_STRING"
                                                         }
                                                 ]
                                         }
                                 ],
                                 "transformJsonNode":[
                                         {
-                                                "jsonPath":"name.first",
-                                                "randomValue":"RANDOM_STRING"
+                                                "jsonKey":"name.first",
+                                                "getRandomValue":"RANDOM_STRING"
                                         }
                                 ]
                         },

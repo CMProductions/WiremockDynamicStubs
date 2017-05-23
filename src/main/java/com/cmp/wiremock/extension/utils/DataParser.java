@@ -19,52 +19,52 @@ import static com.google.common.base.Charsets.UTF_8;
 /**
  * Created by lunabulnes
  */
-public class XmlParser {
+public class DataParser {
 
     private Object xmlObject;
 
-    private XmlParser(Object xmlObject) {
+    private DataParser(Object xmlObject) {
         this.xmlObject = xmlObject;
     }
 
-    public static XmlParser fromBinaryFile(BinaryFile xmlObject) {
-        return new XmlParser(xmlObject);
+    public static DataParser fromBinaryFile(BinaryFile xmlObject) {
+        return new DataParser(xmlObject);
     }
 
-    public static XmlParser fromByteArray(byte[] xmlObject) {
-        return new XmlParser(xmlObject);
+    public static DataParser fromByteArray(byte[] xmlObject) {
+        return new DataParser(xmlObject);
     }
 
-    public static XmlParser fromString(String xmlObject) {
-        return new XmlParser(xmlObject);
+    public static DataParser fromString(String xmlObject) {
+        return new DataParser(xmlObject);
     }
 
-    public static XmlParser fromDocument(Document xmlObject) {
-        return new XmlParser(xmlObject);
+    public static DataParser fromDocument(Document xmlObject) {
+        return new DataParser(xmlObject);
     }
 
-    public XmlParser parseBinaryToByteArray() {
+    public DataParser parseBinaryToByteArray() {
         this.xmlObject = ((BinaryFile)this.xmlObject).readContents();
         return this;
     }
 
-    public XmlParser parseByteArrayToString() {
+    public DataParser parseByteArrayToString() {
         this.xmlObject = new String((byte[])this.xmlObject, UTF_8);
         return this;
     }
 
-    public XmlParser parseBinaryFileToString() {
+    public DataParser parseBinaryFileToString() {
         return this.parseBinaryToByteArray().parseByteArrayToString();
     }
 
-    public XmlParser parseStringToDocument() throws Exception{
+    public DataParser parseStringToDocument() throws Exception{
         this.xmlObject = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
                 .parse(new InputSource(new StringReader((String)this.xmlObject)));
         return this;
     }
 
-    public XmlParser parseDocumentToString() throws Exception{
+    public DataParser parseDocumentToString() throws Exception{
         Transformer transformer = TransformerFactory.newInstance()
                 .newTransformer();
 
