@@ -2,7 +2,7 @@
         "priority":10,
         "request":{
                 "method":"POST",
-                "urlPath":"/fake/transform"
+                "urlPath":"/fake/xml/transform"
         },
         "response":{
                 "status":200,
@@ -27,6 +27,19 @@
                                         {
                                                 "xpath":"//First/text()",
                                                 "valueFromBodyXpath":"//OffenderId/text()"
+                                        },
+                                        {
+                                                "xpath":"//First/text()",
+                                                "compoundValue":[
+                                                        {
+                                                                "xpath":"//Name/First/text()",
+                                                                "newValue":"New Name"
+                                                        },
+                                                        {
+                                                                "xpath":"//Name/Last/text()",
+                                                                "randomValue":"RANDOM_STRING"
+                                                        }
+                                                ]
                                         }
                                 ],
                                 "transformJsonNode":[

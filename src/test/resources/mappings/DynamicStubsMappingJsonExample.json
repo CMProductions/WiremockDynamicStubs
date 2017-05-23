@@ -1,0 +1,55 @@
+{
+        "priority":10,
+        "request":{
+                "method":"POST",
+                "urlPath":"/fake/json/transform"
+        },
+        "response":{
+                "status":200,
+                "transformers":[
+                        "DynamicStubs"
+                ],
+                "transformerParameters":{
+                        "dynamicStubsParameters":{
+                                "transformXmlNode":[
+                                        {
+                                                "xpath":"//Name/First/text()",
+                                                "getNewValue":"New Name"
+                                        },
+                                        {
+                                                "xpath":"//Name/Last/text()",
+                                                "getRandomValue":"RANDOM_STRING"
+                                        },
+                                        {
+                                                "xpath":"//Name/Last/text()",
+                                                "getFromQueryParameter":"name"
+                                        },
+                                        {
+                                                "xpath":"//First/text()",
+                                                "getFromBodyJsonPath":"$.query.emails[0].address"
+                                        },
+                                        {
+                                                "xpath":"//Name/Last/text()",
+                                                "getFromBodyJsonKey":"query"
+                                        }
+
+                                ],
+                                "transformJsonNode":[
+                                        {
+                                                "jsonPath":"name.first",
+                                                "GetRandomValue":"RANDOM_STRING"
+                                        }
+                                ]
+                        },
+                        "otherParameters":{
+
+                        }
+                },
+                "bodyFileName":"TEMPLATE.xml"
+        },
+        "postServeActions":{
+                "Postback":{
+                        "baseUrl":"http://thiscouldbe.com/whatever"
+                }
+        }
+}

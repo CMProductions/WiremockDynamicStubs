@@ -112,6 +112,26 @@ public class ExtensionTests {
     }
 
     @Test
+    public void jsonResponseDefinitionTransformerFromMappingTest() {
+        WireMockServer wiremock = new WireMockServer(wireMockConfig()
+                .extensions(new DynamicStubs())
+                .port(8886));
+        wiremock.start();
+        wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
+
+        ValidatableResponse response = given()
+                .spec(new RequestSpecBuilder().build())
+                .body("{\"query\":{\"emails\":[{\"address\":\"test.guy@gmail.com\",\"address_md5\":\"5d7d64c9c659f6ac4031a72b3578e9b3\"}]}}")
+                .when()
+                .post("http://localhost:8886" + "/fake/json/transform?name=Arturo&other=3")
+                .then();
+
+        System.out.println("RESPONSE: " + response.extract().body().asString());
+
+        wiremock.stop();
+    }
+
+    @Test
     public void postServeActionTestStandAlone() {
         //Wiremock should be running already in localhost:8887
 
