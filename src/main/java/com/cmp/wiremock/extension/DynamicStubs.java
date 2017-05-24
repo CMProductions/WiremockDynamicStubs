@@ -32,6 +32,10 @@ import java.util.regex.Pattern;
  */
 public class DynamicStubs extends ResponseDefinitionTransformer {
 
+    private final static String EXTENSION_PARAMS_NAME = "dynamicStubsParameters";
+    private final static String XML_PARAMS = "transformXmlNode";
+    private final static String JSON_PARAMS = "transformJsonNode";
+
     public String getName() {
         return "DynamicStubs";
     }
@@ -45,7 +49,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
         ResponseDefinition newResponse = responseDefinition;
         String templateName = responseDefinition.getBodyFileName();
-        Object dynamicStubsParameters = parameters.getOrDefault("dynamicStubsParameters", null);
+        Object dynamicStubsParameters = parameters.getOrDefault(EXTENSION_PARAMS_NAME, null);
 
         try {
             if(templateName != null && dynamicStubsParameters!= null) {
@@ -67,21 +71,19 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private static boolean isXmlFile(String fileName) {
-        //TODO: Mejorar esto
         return fileName.endsWith(".xml");
     }
 
     private static boolean isJsonFile(String fileName) {
-        //TODO: Mejorar esto
         return fileName.endsWith(".json");
     }
 
     private JSONArray xmlParameters(Object parameters) {
-        return parseObjectToJsonArray(parameters, "transformXmlNode");
+        return DSUtils.parseWiremockParametersToJsonArray(parameters, XML_PARAMS);
     }
 
     private JSONArray jsonParameters(Object parameters) {
-        return parseObjectToJsonArray(parameters, "transformJsonNode");
+        return DSUtils.parseWiremockParametersToJsonArray(parameters, JSON_PARAMS);
     }
 
     private ResponseDefinition transformXmlResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
@@ -109,21 +111,6 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 .withBodyFile(null)
                 .withBody(newBodyResponse)
                 .build();
-    }
-
-    private JSONArray parseObjectToJsonArray(Object parameters, String paramKey) {
-        Parameters allParameters = Parameters.of(parameters);
-        Object specificParameters = allParameters.getOrDefault(paramKey, null);
-        JSONArray formattedParameters = new JSONArray();
-
-        if(specificParameters != null) {
-            String jsonString = specificParameters.toString()
-                    .replaceAll("(?! )(?!\\[)(?!])(?<=[={}, ])([^{},]+?)(?=[{}=,])", "\"$1\"")
-                    .replaceAll("=", ":");
-            formattedParameters = new JSONArray(jsonString);
-        }
-
-        return formattedParameters;
     }
 
     private ResponseDefinition transformJsonResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {

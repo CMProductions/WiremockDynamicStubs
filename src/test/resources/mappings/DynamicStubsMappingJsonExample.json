@@ -38,6 +38,10 @@
                                         {
                                                 "jsonPath":"$.Records.Record.Name.First",
                                                 "getNewValue":"LET'S SEE WHAT HAPPENS"
+                                        },
+                                        {
+                                                "jsonKey":"Others",
+                                                "getNewValue":"LET'S SEE WHAT HAPPENS"
                                         }
                                 ]
                         },

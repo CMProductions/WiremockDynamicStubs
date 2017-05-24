@@ -13,11 +13,11 @@
                         "dynamicStubsParameters":{
                                 "transformXmlNode":[
                                         {
-                                                "xpath":"//Name/First/text()",
+                                                "xpath":"//Name/First",
                                                 "getNewValue":"New Name"
                                         },
                                         {
-                                                "xpath":"//Name/Last/text()",
+                                                "xpath":"//Name/Last",
                                                 "getRandomValue":"RANDOM_STRING"
                                         },
                                         {
