@@ -18,7 +18,7 @@
                                         },
                                         {
                                                 "xpath":"//Name/Last/text()",
-                                                "getRandomValue":"RANDOM_STRING"
+                                                "getRandomValue":"POSITIVE_FLOAT"
                                         },
                                         {
                                                 "xpath":"//Name/Last/text()",

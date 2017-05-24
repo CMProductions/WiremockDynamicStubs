@@ -1,8 +1,10 @@
 package com.cmp.wiremock.extension;
 
+import com.cmp.wiremock.extension.enums.DSFakeDataType;
 import com.cmp.wiremock.extension.enums.DSParamType;
 import com.cmp.wiremock.extension.utils.DSUtils;
 import com.cmp.wiremock.extension.utils.DataParser;
+import com.github.javafaker.Faker;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -14,6 +16,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -36,6 +39,8 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     private final static String XML_PARAMS = "transformXmlNode";
     private final static String JSON_PARAMS = "transformJsonNode";
 
+    private final static Faker faker = new Faker();
+
     public String getName() {
         return "DynamicStubs";
     }
@@ -54,17 +59,14 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         try {
             if(templateName != null && dynamicStubsParameters!= null) {
                 if(isXmlFile(templateName)) {
-                    JSONArray xmlParams = xmlParameters(dynamicStubsParameters);
-                    newResponse = transformXmlResponse(request, responseDefinition, files, xmlParams);
+                    newResponse = transformXmlResponse(request, responseDefinition, files, getXmlParameters(dynamicStubsParameters));
                 }
                 if (isJsonFile(templateName)) {
-                    JSONArray jsonParams = jsonParameters(dynamicStubsParameters);
-                    newResponse = transformJsonResponse(request, responseDefinition, files, jsonParams);
+                    newResponse = transformJsonResponse(request, responseDefinition, files, getJsonParameters(dynamicStubsParameters));
                 }
             }
         } catch(Exception e) {
-            System.out.println("Unable to transform Response");
-            System.out.println(e.getMessage());
+            System.err.println("Unable to transform Response");
         }
 
         return newResponse;
@@ -78,11 +80,11 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return fileName.endsWith(".json");
     }
 
-    private JSONArray xmlParameters(Object parameters) {
+    private static JSONArray getXmlParameters(Object parameters) {
         return DSUtils.parseWiremockParametersToJsonArray(parameters, XML_PARAMS);
     }
 
-    private JSONArray jsonParameters(Object parameters) {
+    private static JSONArray getJsonParameters(Object parameters) {
         return DSUtils.parseWiremockParametersToJsonArray(parameters, JSON_PARAMS);
     }
 
@@ -97,11 +99,11 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 String newValue = getNewValue(request, parameter);
                 updateXmlTemplateValues(xmlTemplate, parameter, newValue);
             } catch (Exception e) {
-                throw  new RuntimeException(e);
+                throw new RuntimeException(e);
             }
         });
 
-        String newBodyResponse = DataParser
+        String transformedBody = DataParser
                 .from(xmlTemplate)
                 .toString();
 
@@ -109,7 +111,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 .like(responseDefinition)
                 .but()
                 .withBodyFile(null)
-                .withBody(newBodyResponse)
+                .withBody(transformedBody)
                 .build();
     }
 
@@ -131,7 +133,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 .build();
     }
 
-    private static void updateXmlTemplateValues(Document template, JSONObject parameter, String newValue) throws Exception {
+    private void updateXmlTemplateValues(Document template, JSONObject parameter, String newValue) throws Exception {
         NodeList nodeList = null;
 
         if(parameter.has(DSParamType.BY_XPATH.getKey())) {
@@ -148,7 +150,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
     }
 
-    private static void updateXmlNodes(NodeList xmlNodes, String newValue) throws Exception {
+    private void updateXmlNodes(NodeList xmlNodes, String newValue) throws Exception {
         for(int i = 0; i < xmlNodes.getLength(); i++) {
             xmlNodes.item(i).setNodeValue(newValue);
         }
@@ -164,10 +166,10 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private static NodeList getMatchingNodesByNodeName(Document document, String nodeName) throws Exception {
-        return getMatchingNodesByXpath(document, "//" + nodeName);
+        return getMatchingNodesByXpath(document, "//" + nodeName + "/text()");
     }
 
-    private static void updateJsonTemplateValues(DocumentContext template, JSONObject parameter, String newValue) throws Exception {
+    private void updateJsonTemplateValues(DocumentContext template, JSONObject parameter, String newValue) throws Exception {
         if(parameter.has(DSParamType.BY_JSON_PATH.getKey())) {
             updateJsonByPath(template, parameter.getString(DSParamType.BY_JSON_PATH.getKey()), newValue);
         }
@@ -176,7 +178,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
     }
 
-    private static void updateJsonByPath(DocumentContext template, String jsonPath, String newValue) throws Exception {
+    private void updateJsonByPath(DocumentContext template, String jsonPath, String newValue) throws Exception {
         template.set(jsonPath, newValue);
     }
 
@@ -218,9 +220,75 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         throw new Exception("No value found");
     }
 
-    private static String getRandomValue(String randomType) {
-        //TODO: Ampliar implementacion con Faker
-        return String.valueOf(System.currentTimeMillis());
+    private static String getRandomValue(String randomType) throws Exception {
+        int maxNumber = getMaxNumberChars(randomType);
+
+        if(randomType.contains(DSFakeDataType.INTEGER.dataKey())) {
+            return String.valueOf((int)faker.number().randomDouble(0, getNumericMin(maxNumber), getNumericMax(maxNumber)));
+        }
+        if(randomType.contains(DSFakeDataType.POS_INTEGER.dataKey())) {
+            return String.valueOf((int)faker.number().randomDouble(0, 0, getNumericMax(maxNumber)));
+        }
+        if(randomType.contains(DSFakeDataType.NEG_INTEGER.dataKey())) {
+            return String.valueOf((int)faker.number().randomDouble(0, getNumericMin(maxNumber), 0));
+        }
+        if(randomType.contains(DSFakeDataType.FLOAT.dataKey())) {
+            return String.valueOf(faker.number().randomDouble(3, getNumericMin(maxNumber), getNumericMax(maxNumber)));
+        }
+        if(randomType.contains(DSFakeDataType.POS_FLOAT.dataKey())) {
+            return String.valueOf(faker.number().randomDouble(3, 0, getNumericMax(maxNumber)));
+        }
+        if(randomType.contains(DSFakeDataType.NEG_FLOAT.dataKey())) {
+            return String.valueOf(faker.number().randomDouble(3, getNumericMin(maxNumber), 0));
+        }
+        if(randomType.contains(DSFakeDataType.STRING.dataKey())) {
+            return RandomStringUtils.randomAlphabetic(maxNumber);
+        }
+        if(randomType.contains(DSFakeDataType.EMAIL.dataKey())) {
+            return faker.internet().emailAddress();
+        }
+        if(randomType.contains(DSFakeDataType.NAME.dataKey())) {
+            return faker.name().firstName();
+        }
+        if(randomType.contains(DSFakeDataType.LAST_NAME.dataKey())) {
+            return faker.name().lastName();
+        }
+        if(randomType.contains(DSFakeDataType.FULL_NAME.dataKey())) {
+            return faker.name().fullName();
+        }
+        if(randomType.contains(DSFakeDataType.PHONE.dataKey())) {
+            return faker.phoneNumber().phoneNumber();
+        }
+        if(randomType.contains(DSFakeDataType.ADDRESS.dataKey())) {
+            return faker.address().fullAddress();
+        }
+
+        throw new Exception("Can not generate data of the specified type");
+    }
+
+    private static int getMaxNumberChars(String randomType) throws Exception {
+        int index = randomType.lastIndexOf("_");
+        String maxNumber = randomType.substring(index + 1);
+
+        try {
+            return Integer.valueOf(maxNumber);
+        } catch (NumberFormatException e) {
+            return 6;
+        }
+    }
+
+    private static int getNumericMax(int maxNumber) {
+        int max = 0;
+
+        for(int i = 0; i < maxNumber; i++) {
+            max = max * 10 + 9;
+        }
+
+        return max;
+    }
+
+    private static int getNumericMin(int maxNumber) {
+        return getNumericMax(maxNumber) * -1;
     }
 
     private static String getFromQuery(String requestURL, String queryParameter) throws Exception {
@@ -258,11 +326,11 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         throw new Exception("No match found");
     }
 
-    private static String getFromHeader(HttpHeaders requestHeaders, String headerKey) throws Exception {
+    private static String getFromHeader(HttpHeaders requestHeaders, String headerKey) {
         return requestHeaders.getHeader(headerKey).toString();
     }
 
-    private static String getFromCookie(Map<String, Cookie> requestCookies, String cookieKey) throws Exception {
+    private static String getFromCookie(Map<String, Cookie> requestCookies, String cookieKey) {
         return requestCookies.get(cookieKey).toString();
     }
 
