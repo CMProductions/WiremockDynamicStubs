@@ -66,7 +66,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 }
             }
         } catch(Exception e) {
-            System.err.println("Unable to transform Response");
+            System.err.println("Unable to transform Response: " + e.getMessage());
         }
 
         return newResponse;
@@ -143,11 +143,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             nodeList = getMatchingNodesByNodeName(template, parameter.getString(DSParamType.BY_NODE_NAME.getKey()));
         }
 
-        if (nodeList != null) {
-            updateXmlNodes(nodeList, newValue);
-        } else {
-            throw new Exception("No matching nodes found");
-        }
+        updateXmlNodes(nodeList, newValue);
     }
 
     private void updateXmlNodes(NodeList xmlNodes, String newValue) throws Exception {
