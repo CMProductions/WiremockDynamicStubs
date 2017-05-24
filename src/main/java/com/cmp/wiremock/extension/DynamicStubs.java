@@ -37,6 +37,11 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     @Override
+    public boolean applyGlobally() {
+        return false;
+    }
+
+    @Override
     public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
         ResponseDefinition newResponse = responseDefinition;
         String templateName = responseDefinition.getBodyFileName();
@@ -61,11 +66,6 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return newResponse;
     }
 
-    @Override
-    public boolean applyGlobally() {
-        return false;
-    }
-
     private static boolean isXmlFile(String fileName) {
         //TODO: Mejorar esto
         return fileName.endsWith(".xml");
@@ -85,10 +85,9 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private ResponseDefinition transformXmlResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
-        Document xmlTemplate = DataParser.fromBinaryFile(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
-                .parseBinaryFileToString()
-                .parseStringToDocument()
-                .getAsDocument();
+        Document xmlTemplate = DataParser
+                .from(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
+                .toDocument();
 
         parameters.forEach(item -> {
             JSONObject parameter = (JSONObject) item;
@@ -100,9 +99,9 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             }
         });
 
-        String newBodyResponse = DataParser.fromDocument(xmlTemplate)
-                .parseDocumentToString()
-                .getAsString();
+        String newBodyResponse = DataParser
+                .from(xmlTemplate)
+                .toString();
 
         return ResponseDefinitionBuilder
                 .like(responseDefinition)
@@ -128,21 +127,20 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private ResponseDefinition transformJsonResponse(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
-        String jsonString = DataParser.fromBinaryFile(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
-                .parseBinaryFileToString()
-                .getAsString();
-        JSONObject jsonTemplate = new JSONObject(jsonString);
+        DocumentContext jsonTemplate = DataParser
+                .from(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
+                .toDocumentContext();
 
         for(int i = 0; i < parameters.length(); i++) {
             String newValue = getNewValue(request, parameters.getJSONObject(i));
-            jsonTemplate = updateJsonTemplateValues(jsonTemplate, parameters.getJSONObject(i), newValue);
+            updateJsonTemplateValues(jsonTemplate, parameters.getJSONObject(i), newValue);
         }
 
         return ResponseDefinitionBuilder
                 .like(responseDefinition)
                 .but()
                 .withBodyFile(null)
-                .withBody(jsonTemplate.toString())
+                .withBody(jsonTemplate.jsonString())
                 .build();
     }
 
@@ -170,8 +168,11 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private static NodeList getMatchingNodesByXpath(Document document, String xpathExpression) throws Exception {
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        return (NodeList) xpath.compile(xpathExpression)
+        XPath xpath = XPathFactory
+                .newInstance()
+                .newXPath();
+        return (NodeList) xpath.
+                compile(xpathExpression)
                 .evaluate(document, XPathConstants.NODESET);
     }
 
@@ -179,21 +180,17 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return getMatchingNodesByXpath(document, "//" + nodeName);
     }
 
-    private static JSONObject updateJsonTemplateValues(JSONObject template, JSONObject parameter, String newValue) throws Exception {
+    private static void updateJsonTemplateValues(DocumentContext template, JSONObject parameter, String newValue) throws Exception {
         if(parameter.has(DSParamType.BY_JSON_PATH.getKey())) {
-            return updateJsonByPath(template, parameter, newValue);
+            updateJsonByPath(template, parameter.getString(DSParamType.BY_JSON_PATH.getKey()), newValue);
         }
         if(parameter.has(DSParamType.BY_JSON_KEY.getKey())) {
-            return template.put(parameter.getString(DSParamType.BY_JSON_KEY.getKey()), newValue);
+            updateJsonByPath(template, parameter.getString(DSParamType.BY_JSON_KEY.getKey()), newValue);
         }
-        throw new Exception("No matching nodes found");
     }
 
-    private static JSONObject updateJsonByPath(JSONObject template, JSONObject parameter, String newValue) throws Exception {
-        DocumentContext jsonTemplate = JsonPath.parse(template.toString());
-        jsonTemplate.set(parameter.getString(DSParamType.BY_JSON_PATH.getKey()), newValue);
-
-        return new JSONObject(jsonTemplate.jsonString());
+    private static void updateJsonByPath(DocumentContext template, String jsonPath, String newValue) throws Exception {
+        template.set(jsonPath, newValue);
     }
 
     private static String getNewValue(Request request, JSONObject parameter) throws Exception {
@@ -250,14 +247,13 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     private static String getFromJsonKey(String requestBody, String jsonKey) throws Exception {
-        JSONObject jsonBody = new JSONObject(requestBody);
-        return jsonBody.get(jsonKey).toString();
+        return new JSONObject(requestBody).get(jsonKey).toString();
     }
 
     private static String getFromXml(String requestBody, String xpath) throws Exception {
-        Document xmlRequest = DataParser.fromString(requestBody)
-                .parseStringToDocument()
-                .getAsDocument();
+        Document xmlRequest = DataParser
+                .from(requestBody)
+                .toDocument();
 
         return getMatchingNodesByXpath(xmlRequest, xpath)
                 .item(0)

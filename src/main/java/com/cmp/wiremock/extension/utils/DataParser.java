@@ -1,13 +1,14 @@
 package com.cmp.wiremock.extension.utils;
 
 import com.github.tomakehurst.wiremock.common.BinaryFile;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -21,68 +22,50 @@ import static com.google.common.base.Charsets.UTF_8;
  */
 public class DataParser {
 
-    private Object xmlObject;
+    private String objectAsString;
 
-    private DataParser(Object xmlObject) {
-        this.xmlObject = xmlObject;
+    private DataParser(String object) {
+        this.objectAsString = object;
     }
 
-    public static DataParser fromBinaryFile(BinaryFile xmlObject) {
-        return new DataParser(xmlObject);
+    public static DataParser from(BinaryFile binaryFile) {
+        String parsedFile = new String(binaryFile.readContents(), UTF_8);
+        return new DataParser(parsedFile);
     }
 
-    public static DataParser fromByteArray(byte[] xmlObject) {
-        return new DataParser(xmlObject);
+    public static DataParser from(String string) {
+        return new DataParser(string);
     }
 
-    public static DataParser fromString(String xmlObject) {
-        return new DataParser(xmlObject);
-    }
-
-    public static DataParser fromDocument(Document xmlObject) {
-        return new DataParser(xmlObject);
-    }
-
-    public DataParser parseBinaryToByteArray() {
-        this.xmlObject = ((BinaryFile)this.xmlObject).readContents();
-        return this;
-    }
-
-    public DataParser parseByteArrayToString() {
-        this.xmlObject = new String((byte[])this.xmlObject, UTF_8);
-        return this;
-    }
-
-    public DataParser parseBinaryFileToString() {
-        return this.parseBinaryToByteArray().parseByteArrayToString();
-    }
-
-    public DataParser parseStringToDocument() throws Exception{
-        this.xmlObject = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(new InputSource(new StringReader((String)this.xmlObject)));
-        return this;
-    }
-
-    public DataParser parseDocumentToString() throws Exception{
-        Transformer transformer = TransformerFactory.newInstance()
-                .newTransformer();
-
-        Source source = new DOMSource((Document)this.xmlObject);
+    public static DataParser from(Document document) throws Exception {
+        Source source = new DOMSource(document);
         StringWriter writer = new StringWriter();
         Result destination = new StreamResult(writer);
 
-        transformer.transform(source, destination);
+        TransformerFactory.newInstance()
+                .newTransformer()
+                .transform(source, destination);
 
-        this.xmlObject = writer.toString();
-        return this;
+        String parsedDocument = writer.toString();
+        return new DataParser(parsedDocument);
     }
 
-    public String getAsString() {
-        return (String) this.xmlObject;
+    public static DataParser from(DocumentContext documentContext) throws Exception {
+        return new DataParser(documentContext.jsonString());
     }
 
-    public Document getAsDocument() {
-        return (Document) this.xmlObject;
+    @Override
+    public String toString() {
+        return objectAsString;
+    }
+
+    public Document toDocument() throws Exception {
+        return DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
+                .parse(new InputSource(new StringReader(objectAsString)));
+    }
+
+    public DocumentContext toDocumentContext() throws Exception {
+        return JsonPath.parse(objectAsString);
     }
 }
