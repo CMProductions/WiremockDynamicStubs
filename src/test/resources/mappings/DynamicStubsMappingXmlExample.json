@@ -11,45 +11,46 @@
                 ],
                 "transformerParameters":{
                         "dynamicStubsParameters":{
-                                "transformXmlNode":[
+                                "fromRequest":[
                                         {
-                                                "xpath":"//Name/First",
-                                                "getNewValue":"New Name"
-                                        },
-                                        {
-                                                "xpath":"//Name/Last/text()",
-                                                "getRandomValue":"STRING_20"
-                                        },
-                                        {
-                                                "xpath":"//Name/Last/text()",
-                                                "getFromQueryParameter":"name"
-                                        },
-                                        {
-                                                "xpath":"//Records/Record/Name/First/text()",
-                                                "getFromBodyXpath":"//OffenderId/text()"
-                                        },
-                                        {
-                                                "nodeName":"First",
-                                                "compoundValue":[
-                                                        {
-                                                                "getFromBodyXpath":"//OffenderId/text()"
-                                                        },
-                                                        {
-                                                                "getRandomValue":"RANDOM_STRING"
-                                                        }
+                                        "transformXmlNode":[
+                                                {
+                                                        "xpath":"//Name/First",
+                                                        "getNewValue":"New Name"
+                                                },
+                                                {
+                                                        "xpath":"//Name/Last/text()",
+                                                        "getRandomValue":"STRING_20"
+                                                },
+                                                {
+                                                        "xpath":"//Name/Last/text()",
+                                                        "getFromQueryParameter":"name"
+                                                },
+                                                {
+                                                        "xpath":"//Records/Record/Name/First/text()",
+                                                        "getFromBodyXpath":"//OffenderId/text()"
+                                                },
+                                                {
+                                                        "nodeName":"First",
+                                                        "compoundValue":[
+                                                                {
+                                                                        "getFromBodyXpath":"//OffenderId/text()"
+                                                                },
+                                                                {
+                                                                        "getRandomValue":"RANDOM_STRING"
+                                                                }
+                                                        ]
+                                                }
                                                 ]
                                         }
                                 ],
-                                "transformJsonNode":[
+                                "fromResponseWithTag":"id003",
+                                        "transformXmlNode":[
                                         {
-                                                "jsonKey":"name.first",
-                                                "getRandomValue":"RANDOM_EMAIL"
+                                                "xpath": "//Name/First/text()",
+                                                "getNewValue": "New Name"
                                         }
                                 ]
-                        },
-                        "otherParameters":{
-
-                        }
                 },
                 "bodyFileName":"TEMPLATE.xml"
         },

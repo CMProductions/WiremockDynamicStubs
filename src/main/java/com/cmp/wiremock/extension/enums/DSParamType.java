@@ -21,7 +21,9 @@ public enum DSParamType {
     FROM_BODY_PLAINTEXT("getFromBodyPlainText"),
     FROM_HEADER("getFromHeader"),
     FROM_COOKIE("getFromCookie"),
-    COMPOUND_VALUE("compoundValue");
+    COMPOUND_VALUE("compoundValue"),
+    FROM_SAVED_RESPONSE("fromResponseWithTag"),
+    FROM_REQUEST("fromRequest");
 
     private String paramKey;
 

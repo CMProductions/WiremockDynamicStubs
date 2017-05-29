@@ -38,6 +38,16 @@
                                                                 "getRandomValue":"RANDOM_STRING"
                                                         }
                                                 ]
+                                        },
+                                        {
+                                                "xpath":"//Name/Last/text()",
+                                                "getFromSavedResponse":"id003",
+                                                "transformXmlNode":[
+                                                        {
+                                                                "xpath": "//Name/First/text()",
+                                                                "getNewValue": "New Name"
+                                                        }
+                                                ]
                                         }
                                 ],
                                 "transformJsonNode":[

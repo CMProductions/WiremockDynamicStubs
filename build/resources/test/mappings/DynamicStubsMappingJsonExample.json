@@ -27,10 +27,6 @@
                                         {
                                                 "xpath":"//First/text()",
                                                 "getFromBodyJsonPath":"$.query.emails[0].address"
-                                        },
-                                        {
-                                                "xpath":"//Name/Last/text()",
-                                                "getFromBodyJsonKey":"query"
                                         }
 
                                 ],
