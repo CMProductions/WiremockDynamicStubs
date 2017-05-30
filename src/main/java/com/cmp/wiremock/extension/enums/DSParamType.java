@@ -25,6 +25,7 @@ public enum DSParamType {
     FROM_SAVED_RESPONSE("fromResponse"),
     FROM_REQUEST("fromRequest"),
     SAVE_RESPONSE("saveResponseWithTag"),
+    WITH_TAG("withTag"),
     DELETE_RESPONSE("deleteResponseWithTag");
 
     private String paramKey;

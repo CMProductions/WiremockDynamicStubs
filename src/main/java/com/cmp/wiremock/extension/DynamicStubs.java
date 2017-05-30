@@ -26,6 +26,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +36,7 @@ import java.util.regex.Pattern;
  */
 public class DynamicStubs extends ResponseDefinitionTransformer {
 
-    private static Map<String, ResponseDefinition> savedResponses;
+    private static Map<String, ResponseDefinition> savedResponses =  new HashMap<>();
 
     private final static String EXTENSION_PARAMS_NAME = "dynamicStubsParameters";
     private final static String XML_PARAMS = "transformXmlNode";
@@ -79,6 +80,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             }
         } catch(Exception e) {
             System.err.println("Unable to transform Response: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return newResponse;
@@ -110,8 +112,8 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             transformXmlTemplateFromRequest(request, xmlTemplate, getXmlParameters(requestParams));
         }
         if(parameters.containsKey(DSParamType.FROM_SAVED_RESPONSE.getKey())) {
-            Parameters responseParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_REQUEST.getKey(), null));
-            ResponseDefinition response = retrievedSavedResponse(parameters.getString(DSParamType.FROM_SAVED_RESPONSE.getKey()));
+            Parameters responseParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_SAVED_RESPONSE.getKey(), null));
+            ResponseDefinition response = retrievedSavedResponse(responseParams.getString(DSParamType.WITH_TAG.getKey()));
             transformXmlTemplateFromResponse(response, xmlTemplate, getXmlParameters(responseParams));
         }
 
@@ -129,8 +131,8 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
             savedResponses.put(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()), transformedResponse);
         }
-        if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
-            savedResponses.remove(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()));
+        if(parameters.containsKey(DSParamType.DELETE_RESPONSE.getKey())) {
+            savedResponses.remove(parameters.getString(DSParamType.DELETE_RESPONSE.getKey()));
         }
 
         return transformedResponse;
@@ -170,8 +172,8 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             transformJsonResponseFromRequest(request, jsonTemplate, getJsonParameters(requestParams));
         }
         if(parameters.containsKey(DSParamType.FROM_SAVED_RESPONSE.getKey())) {
-            Parameters responseParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_REQUEST.getKey(), null));
-            ResponseDefinition response = retrievedSavedResponse(parameters.getString(DSParamType.FROM_SAVED_RESPONSE.getKey()));
+            Parameters responseParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_SAVED_RESPONSE.getKey(), null));
+            ResponseDefinition response = retrievedSavedResponse(responseParams.getString(DSParamType.WITH_TAG.getKey()));
             transformJsonTemplateFromResponse(response, jsonTemplate, getJsonParameters(responseParams));
         }
 
@@ -189,8 +191,8 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
             savedResponses.put(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()), transformedResponse);
         }
-        if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
-            savedResponses.remove(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()));
+        if(parameters.containsKey(DSParamType.DELETE_RESPONSE.getKey())) {
+            savedResponses.remove(parameters.getString(DSParamType.DELETE_RESPONSE.getKey()));
         }
 
         return transformedResponse;
