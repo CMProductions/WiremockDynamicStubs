@@ -12,7 +12,9 @@
                 "transformerParameters": {
                         "dynamicStubsParameters": {
                                 "fromResponse": {
-                                        "withTag": "example",
+                                        "withTag": {
+                                                "getNewValue": "example"
+                                        },
                                         "transformXmlNode": [
                                                 {
                                                         "xpath": "//Records/Record/Name/First/text()",
@@ -20,9 +22,12 @@
                                                 }
                                         ]
                                 },
-                                "deleteResponseWithTag": "example"
+                                "deleteResponseWithTag": {
+                                        "getNewValue": "example"
+                                }
                         }
                 },
+
                 "bodyFileName":"TEMPLATE.xml"
         }
 }

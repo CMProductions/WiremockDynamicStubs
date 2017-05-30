@@ -113,7 +113,9 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
         if(parameters.containsKey(DSParamType.FROM_SAVED_RESPONSE.getKey())) {
             Parameters responseParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_SAVED_RESPONSE.getKey(), null));
-            ResponseDefinition response = retrievedSavedResponse(responseParams.getString(DSParamType.WITH_TAG.getKey()));
+            Parameters tagParams = Parameters.of(responseParams.getOrDefault(DSParamType.WITH_TAG.getKey(), null));
+            String tag = getValueFromRequest(request, DSUtils.parseWiremockParametersToJsonObject(tagParams));
+            ResponseDefinition response = retrievedSavedResponse(tag);
             transformXmlTemplateFromResponse(response, xmlTemplate, getXmlParameters(responseParams));
         }
 
@@ -134,7 +136,9 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
             savedResponses.put(tag, transformedResponse);
         }
         if(parameters.containsKey(DSParamType.DELETE_RESPONSE.getKey())) {
-            savedResponses.remove(parameters.getString(DSParamType.DELETE_RESPONSE.getKey()));
+            Parameters deleteParams = Parameters.of(parameters.get(DSParamType.DELETE_RESPONSE.getKey()));
+            String tag = getValueFromRequest(request, DSUtils.parseWiremockParametersToJsonObject(deleteParams));
+            savedResponses.remove(tag);
         }
 
         return transformedResponse;
@@ -191,10 +195,14 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 .build();
 
         if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
-            savedResponses.put(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()), transformedResponse);
+            Parameters saveParams = Parameters.of(parameters.get(DSParamType.SAVE_RESPONSE.getKey()));
+            String tag = getValueFromResponse(transformedResponse, DSUtils.parseWiremockParametersToJsonObject(saveParams));
+            savedResponses.put(tag, transformedResponse);
         }
         if(parameters.containsKey(DSParamType.DELETE_RESPONSE.getKey())) {
-            savedResponses.remove(parameters.getString(DSParamType.DELETE_RESPONSE.getKey()));
+            Parameters deleteParams = Parameters.of(parameters.get(DSParamType.DELETE_RESPONSE.getKey()));
+            String tag = getValueFromRequest(request, DSUtils.parseWiremockParametersToJsonObject(deleteParams));
+            savedResponses.remove(tag);
         }
 
         return transformedResponse;
