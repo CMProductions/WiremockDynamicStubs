@@ -1,0 +1,28 @@
+{
+        "priority":10,
+        "request":{
+                "method":"POST",
+                "urlPath":"/fake/xml/retrieve"
+        },
+        "response":{
+                "status":200,
+                "transformers":[
+                        "DynamicStubs"
+                ],
+                "transformerParameters": {
+                        "dynamicStubsParameters": {
+                                "fromResponse": {
+                                        "withTag": "example",
+                                        "transformXmlNode": [
+                                                {
+                                                        "xpath": "//Records/Record/Name/First/text()",
+                                                        "getFromBodyXpath": "//Name/First/text()"
+                                                }
+                                        ]
+                                },
+                                "deleteResponseWithTag": "example"
+                        }
+                },
+                "bodyFileName":"TEMPLATE.xml"
+        }
+}

@@ -112,6 +112,34 @@ public class ExtensionTests {
     }
 
     @Test
+    public void transformResponseFromSavedResponseTest() {
+        WireMockServer wiremock = new WireMockServer(wireMockConfig()
+                .extensions(new DynamicStubs())
+                .port(8886));
+        wiremock.start();
+        wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
+
+        ValidatableResponse response = given()
+                .spec(new RequestSpecBuilder().build())
+                .body("<Records><Record><DataSource>Criminal Court</DataSource><OffenderId>FAKE-OFFENDER-ID-0000000001</OffenderId><Name><First>TESTGUY</First><Middle></Middle><Last>SOMETHING</Last></Name></Record></Records>")
+                .when()
+                .post("http://localhost:8886" + "/fake/xml/save")
+                .then();
+
+        System.out.println("RESPONSE 1: " + response.extract().body().asString());
+
+        response = given()
+                .spec(new RequestSpecBuilder().build())
+                .when()
+                .post("http://localhost:8886" + "/fake/xml/retrieve")
+                .then();
+
+        System.out.println("RESPONSE 2: " + response.extract().body().asString());
+
+        wiremock.stop();
+    }
+
+    @Test
     public void jsonResponseDefinitionTransformerFromMappingTest() {
         WireMockServer wiremock = new WireMockServer(wireMockConfig()
                 .extensions(new DynamicStubs())

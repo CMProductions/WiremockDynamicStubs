@@ -69,11 +69,11 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                     );
                 }
                 if (isJsonFile(templateName)) {
-                    newResponse = transformJsonResponseFromRequest(
+                    newResponse = transformJsonTemplate(
                             request,
                             responseDefinition,
                             files,
-                            getJsonParameters(dynamicStubsParameters)
+                            dynamicStubsParameters
                     );
                 }
             }
@@ -160,11 +160,43 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         });
     }
 
-    private ResponseDefinition transformJsonResponseFromRequest(Request request, ResponseDefinition responseDefinition, FileSource files, JSONArray parameters) throws Exception {
+    private ResponseDefinition transformJsonTemplate(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) throws Exception {
         DocumentContext jsonTemplate = DataParser
                 .from(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
                 .toDocumentContext();
 
+        if(parameters.containsKey(DSParamType.FROM_REQUEST.getKey())) {
+            Parameters requestParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_REQUEST.getKey(), null));
+            transformJsonResponseFromRequest(request, jsonTemplate, getJsonParameters(requestParams));
+        }
+        if(parameters.containsKey(DSParamType.FROM_SAVED_RESPONSE.getKey())) {
+            Parameters responseParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_REQUEST.getKey(), null));
+            ResponseDefinition response = retrievedSavedResponse(parameters.getString(DSParamType.FROM_SAVED_RESPONSE.getKey()));
+            transformJsonTemplateFromResponse(response, jsonTemplate, getJsonParameters(responseParams));
+        }
+
+        String transformedBody = DataParser
+                .from(jsonTemplate)
+                .toString();
+
+        ResponseDefinition transformedResponse = ResponseDefinitionBuilder
+                .like(responseDefinition)
+                .but()
+                .withBodyFile(null)
+                .withBody(transformedBody)
+                .build();
+
+        if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
+            savedResponses.put(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()), transformedResponse);
+        }
+        if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
+            savedResponses.remove(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()));
+        }
+
+        return transformedResponse;
+    }
+
+    private void transformJsonResponseFromRequest(Request request, DocumentContext jsonTemplate, JSONArray parameters) throws Exception {
         for(int i = 0; i < parameters.length(); i++) {
             String newValue = getNewValue(request, parameters.getJSONObject(i));
             updateJsonTemplateValues(
@@ -173,13 +205,6 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                     newValue
             );
         }
-
-        return ResponseDefinitionBuilder
-                .like(responseDefinition)
-                .but()
-                .withBodyFile(null)
-                .withBody(jsonTemplate.jsonString())
-                .build();
     }
 
     private void transformJsonTemplateFromResponse(ResponseDefinition savedResponse, DocumentContext jsonTemplate, JSONArray parameters) throws Exception {
