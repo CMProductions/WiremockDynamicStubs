@@ -19,7 +19,9 @@
                                                 }
                                         ]
                                 },
-                                "saveResponseWithTag": "example"
+                                "saveResponseWithTag": {
+                                        "getNewValue": "example"
+                                }
                         }
                 },
                 "bodyFileName":"TEMPLATE.xml"

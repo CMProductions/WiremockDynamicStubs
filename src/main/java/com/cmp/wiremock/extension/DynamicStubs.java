@@ -129,7 +129,9 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 .build();
 
         if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
-            savedResponses.put(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()), transformedResponse);
+            Parameters saveParams = Parameters.of(parameters.get(DSParamType.SAVE_RESPONSE.getKey()));
+            String tag = getValueFromResponse(transformedResponse, DSUtils.parseWiremockParametersToJsonObject(saveParams));
+            savedResponses.put(tag, transformedResponse);
         }
         if(parameters.containsKey(DSParamType.DELETE_RESPONSE.getKey())) {
             savedResponses.remove(parameters.getString(DSParamType.DELETE_RESPONSE.getKey()));
@@ -142,7 +144,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         parameters.forEach(item -> {
             JSONObject parameter = (JSONObject) item;
             try {
-                String newValue = getNewValue(request, parameter);
+                String newValue = getValueFromRequest(request, parameter);
                 updateXmlTemplateValues(xmlTemplate, parameter, newValue);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -154,7 +156,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         parameters.forEach(item -> {
             JSONObject parameter = (JSONObject) item;
             try {
-                String newValue = getValueFromBody(savedResponse.getBody(), parameter);
+                String newValue = getValueFromResponse(savedResponse, parameter);
                 updateXmlTemplateValues(xmlTemplate, parameter, newValue);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -200,7 +202,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
 
     private void transformJsonResponseFromRequest(Request request, DocumentContext jsonTemplate, JSONArray parameters) throws Exception {
         for(int i = 0; i < parameters.length(); i++) {
-            String newValue = getNewValue(request, parameters.getJSONObject(i));
+            String newValue = getValueFromRequest(request, parameters.getJSONObject(i));
             updateJsonTemplateValues(
                     jsonTemplate,
                     parameters.getJSONObject(i),
@@ -211,7 +213,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
 
     private void transformJsonTemplateFromResponse(ResponseDefinition savedResponse, DocumentContext jsonTemplate, JSONArray parameters) throws Exception {
         for(int i = 0; i < parameters.length(); i++) {
-            String newValue = getValueFromBody(savedResponse.getBody(), parameters.getJSONObject(i));
+            String newValue = getValueFromResponse(savedResponse, parameters.getJSONObject(i));
             updateJsonTemplateValues(
                     jsonTemplate,
                     parameters.getJSONObject(i),
@@ -269,30 +271,15 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         template.set(jsonPath, newValue);
     }
 
-    private static String getNewValue(Request request, JSONObject parameter) throws Exception {
+    private static String getValueFromRequest(Request request, JSONObject parameter) throws Exception {
         if(parameter.has(DSParamType.FROM_NEW.getKey())) {
             return parameter.getString(DSParamType.FROM_NEW.getKey());
         }
         if(parameter.has(DSParamType.FROM_RANDOM.getKey())) {
             return getRandomValue(parameter.getString(DSParamType.FROM_RANDOM.getKey()));
         }
-        if(parameter.has(DSParamType.FROM_RANDOM.getKey())) {
-            return getRandomValue(parameter.getString(DSParamType.FROM_RANDOM.getKey()));
-        }
         if(parameter.has(DSParamType.FROM_QUERY_STRING.getKey())) {
             return getFromQuery(request.getUrl(), parameter.getString(DSParamType.FROM_QUERY_STRING.getKey()));
-        }
-        if(parameter.has(DSParamType.FROM_BODY_JSON_PATH.getKey())) {
-            return getFromJsonPath(request.getBodyAsString(), parameter.getString(DSParamType.FROM_BODY_JSON_PATH.getKey()));
-        }
-        if(parameter.has(DSParamType.FROM_BODY_JSON_KEY.getKey())) {
-            return getFromJsonKey(request.getBodyAsString(), parameter.getString(DSParamType.FROM_BODY_JSON_KEY.getKey()));
-        }
-        if(parameter.has(DSParamType.FROM_BODY_XML.getKey())) {
-            return getFromXml(request.getBodyAsString(), parameter.getString(DSParamType.FROM_BODY_XML.getKey()));
-        }
-        if(parameter.has(DSParamType.FROM_BODY_PLAINTEXT.getKey())) {
-            return getFromPlainText(request.getBodyAsString(), parameter.getString(DSParamType.FROM_BODY_XML.getKey()));
         }
         if(parameter.has(DSParamType.FROM_HEADER.getKey())) {
             return getFromHeader(request.getHeaders(), parameter.getString(DSParamType.FROM_HEADER.getKey()));
@@ -306,6 +293,21 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
 
         try {
             return getValueFromBody(request.getBodyAsString(), parameter);
+        } catch (Exception e) {
+            throw new Exception("No value found");
+        }
+    }
+
+    private static String getValueFromResponse(ResponseDefinition response, JSONObject parameter) throws Exception {
+        if(parameter.has(DSParamType.FROM_NEW.getKey())) {
+            return parameter.getString(DSParamType.FROM_NEW.getKey());
+        }
+        if(parameter.has(DSParamType.FROM_RANDOM.getKey())) {
+            return getRandomValue(parameter.getString(DSParamType.FROM_RANDOM.getKey()));
+        }
+
+        try {
+            return getValueFromBody(response.getBody(), parameter);
         } catch (Exception e) {
             throw new Exception("No value found");
         }
@@ -451,7 +453,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         String compoundValue = "";
 
         for (int i = 0; i < parameters.length(); i++) {
-            compoundValue += getNewValue(request, parameters.getJSONObject(i));
+            compoundValue += getValueFromRequest(request, parameters.getJSONObject(i));
         }
 
         return compoundValue;
