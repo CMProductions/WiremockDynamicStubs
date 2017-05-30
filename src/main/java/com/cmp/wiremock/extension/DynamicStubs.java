@@ -354,6 +354,9 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         if(randomType.contains(DSFakeDataType.STRING.dataKey())) {
             return RandomStringUtils.randomAlphabetic(maxNumber);
         }
+        if(randomType.contains(DSFakeDataType.TIMESTAMP.dataKey())) {
+            return String.valueOf(System.currentTimeMillis());
+        }
         if(randomType.contains(DSFakeDataType.EMAIL.dataKey())) {
             return faker.internet().emailAddress();
         }
