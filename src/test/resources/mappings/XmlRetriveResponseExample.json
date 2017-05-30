@@ -11,13 +11,13 @@
                 ],
                 "transformerParameters": {
                         "dynamicStubsParameters": {
-                                "fromResponse": {
+                                "fromSavedResponse": {
                                         "withTag": {
                                                 "getNewValue": "example"
                                         },
                                         "transformXmlNode": [
                                                 {
-                                                        "xpath": "//Records/Record/Name/First/text()",
+                                                        "fillByXpath": "//Records/Record/Name/First/text()",
                                                         "getFromBodyXpath": "//Name/First/text()"
                                                 }
                                         ]

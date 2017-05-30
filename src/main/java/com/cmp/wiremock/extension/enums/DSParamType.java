@@ -6,10 +6,10 @@ package com.cmp.wiremock.extension.enums;
 public enum DSParamType {
 
     //Set value params
-    BY_XPATH("xpath"),
-    BY_NODE_NAME("nodeName"),
-    BY_JSON_PATH("jsonPath"),
-    BY_JSON_KEY("jsonKey"),
+    BY_XPATH("fillByXpath"),
+    BY_NODE_NAME("fillByNodeName"),
+    BY_JSON_PATH("fillByJsonPath"),
+    BY_JSON_KEY("fillByJsonKey"),
 
     //Get value params
     FROM_NEW("getNewValue"),
@@ -22,7 +22,7 @@ public enum DSParamType {
     FROM_HEADER("getFromHeader"),
     FROM_COOKIE("getFromCookie"),
     COMPOUND_VALUE("compoundValue"),
-    FROM_SAVED_RESPONSE("fromResponse"),
+    FROM_SAVED_RESPONSE("fromSavedResponse"),
     FROM_REQUEST("fromRequest"),
     SAVE_RESPONSE("saveResponseWithTag"),
     WITH_TAG("withTag"),

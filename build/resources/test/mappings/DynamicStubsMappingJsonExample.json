@@ -13,30 +13,30 @@
                         "dynamicStubsParameters":{
                                 "transformXmlNode":[
                                         {
-                                                "xpath":"//Name/First/text()",
+                                                "fillByXpath":"//Name/First/text()",
                                                 "getNewValue":"New Name"
                                         },
                                         {
-                                                "xpath":"//Name/Last/text()",
+                                                "fillByXpath":"//Name/Last/text()",
                                                 "getRandomValue":"POSITIVE_FLOAT"
                                         },
                                         {
-                                                "xpath":"//Name/Last/text()",
+                                                "fillByXpath":"//Name/Last/text()",
                                                 "getFromQueryParameter":"name"
                                         },
                                         {
-                                                "xpath":"//First/text()",
+                                                "fillByXpath":"//First/text()",
                                                 "getFromBodyJsonPath":"$.query.emails[0].address"
                                         }
 
                                 ],
                                 "transformJsonNode":[
                                         {
-                                                "jsonPath":"$.Records.Record.Name.First",
+                                                "fillByJsonPath":"$.Records.Record.Name.First",
                                                 "getNewValue":"LET'S SEE WHAT HAPPENS"
                                         },
                                         {
-                                                "jsonKey":"Others",
+                                                "fillByJsonKey":"Others",
                                                 "getNewValue":"LET'S SEE WHAT HAPPENS"
                                         }
                                 ]

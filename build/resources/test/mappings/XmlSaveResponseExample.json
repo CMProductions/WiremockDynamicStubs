@@ -14,7 +14,7 @@
                                 "fromRequest": {
                                         "transformXmlNode":[
                                                 {
-                                                        "xpath": "//Name/First/text()",
+                                                        "fillByXpath": "//Name/First/text()",
                                                         "getNewValue": "ChangedName"
                                                 }
                                         ]

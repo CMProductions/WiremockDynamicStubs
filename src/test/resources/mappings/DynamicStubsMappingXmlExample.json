@@ -14,23 +14,23 @@
                                 "fromRequest": {
                                         "transformXmlNode":[
                                                 {
-                                                        "xpath": "//Name/First",
+                                                        "fillByXpath": "//Name/First",
                                                         "getNewValue": "New Name"
                                                 },
                                                 {
-                                                        "xpath": "//Name/Last/text()",
+                                                        "fillByXpath": "//Name/Last/text()",
                                                         "getRandomValue": "STRING_20"
                                                 },
                                                 {
-                                                        "xpath": "//Name/Last/text()",
+                                                        "fillByXpath": "//Name/Last/text()",
                                                         "getFromQueryParameter": "name"
                                                 },
                                                 {
-                                                        "xpath": "//Records/Record/Name/First/text()",
+                                                        "fillByXpath": "//Records/Record/Name/First/text()",
                                                         "getFromBodyXpath": "//OffenderId/text()"
                                                 },
                                                 {
-                                                        "nodeName": "First",
+                                                        "fillByNodeName": "First",
                                                         "compoundValue": [
                                                                 {
                                                                         "getFromBodyXpath": "//OffenderId/text()"
@@ -46,7 +46,7 @@
                                         "withTag": "id003",
                                         "transformXmlNode": [
                                                 {
-                                                        "xpath": "//Name/First/text()",
+                                                        "fillByXpath": "//Name/First/text()",
                                                         "getNewValue": "New Name"
                                                 }
                                         ]
