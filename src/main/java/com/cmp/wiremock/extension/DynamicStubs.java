@@ -56,10 +56,10 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
         ResponseDefinition newResponse = responseDefinition;
         String templateName = responseDefinition.getBodyFileName();
-        Parameters dynamicStubsParameters = (Parameters) parameters.getOrDefault(EXTENSION_PARAMS_NAME, null);
+        Parameters dynamicStubsParameters = Parameters.of(parameters.getOrDefault(EXTENSION_PARAMS_NAME, null));
 
         try {
-            if(templateName != null && dynamicStubsParameters!= null) {
+            if(templateName != null && !dynamicStubsParameters.isEmpty()) {
                 if(isXmlFile(templateName)) {
                     newResponse = transformXmlTemplate(
                             request,
@@ -92,12 +92,12 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return fileName.endsWith(".json");
     }
 
-    private static JSONArray getXmlParameters(Object parameters) {
+    private static JSONArray getXmlParameters(Parameters parameters) {
         return DSUtils.parseWiremockParametersToJsonArray(parameters, XML_PARAMS);
     }
 
     private static JSONArray getJsonParameters(Object parameters) {
-        return DSUtils.parseWiremockParametersToJsonArray(parameters, JSON_PARAMS);
+        return DSUtils.parseWiremockParametersToJsonArray((Parameters) parameters, JSON_PARAMS);
     }
 
     private ResponseDefinition transformXmlTemplate(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) throws Exception {
@@ -105,24 +105,35 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                 .from(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
                 .toDocument();
 
-        if(parameters.getOrDefault(DSParamType.FROM_REQUEST.getKey(), null) != null) {
-            transformXmlTemplateFromRequest(request, xmlTemplate, getXmlParameters(parameters));
+        if(parameters.containsKey(DSParamType.FROM_REQUEST.getKey())) {
+            Parameters requestParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_REQUEST.getKey(), null));
+            transformXmlTemplateFromRequest(request, xmlTemplate, getXmlParameters(requestParams));
         }
-        if(parameters.getOrDefault(DSParamType.FROM_SAVED_RESPONSE.getKey(), null) != null) {
+        if(parameters.containsKey(DSParamType.FROM_SAVED_RESPONSE.getKey())) {
+            Parameters responseParams = Parameters.of(parameters.getOrDefault(DSParamType.FROM_REQUEST.getKey(), null));
             ResponseDefinition response = retrievedSavedResponse(parameters.getString(DSParamType.FROM_SAVED_RESPONSE.getKey()));
-            transformXmlTemplateFromResponse(response, xmlTemplate, getXmlParameters(parameters));
+            transformXmlTemplateFromResponse(response, xmlTemplate, getXmlParameters(responseParams));
         }
 
         String transformedBody = DataParser
                 .from(xmlTemplate)
                 .toString();
 
-        return ResponseDefinitionBuilder
+        ResponseDefinition transformedResponse = ResponseDefinitionBuilder
                 .like(responseDefinition)
                 .but()
                 .withBodyFile(null)
                 .withBody(transformedBody)
                 .build();
+
+        if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
+            savedResponses.put(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()), transformedResponse);
+        }
+        if(parameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
+            savedResponses.remove(parameters.getString(DSParamType.SAVE_RESPONSE.getKey()));
+        }
+
+        return transformedResponse;
     }
 
     private void transformXmlTemplateFromRequest(Request request, Document xmlTemplate, JSONArray parameters) throws Exception {

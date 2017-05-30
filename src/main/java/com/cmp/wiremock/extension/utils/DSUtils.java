@@ -26,9 +26,9 @@ public class DSUtils {
         return queryMap;
     }
 
-    public static  JSONArray parseWiremockParametersToJsonArray(Object parameters, String paramKey) {
-        Parameters allParameters = Parameters.of(parameters);
-        Object specificParameters = allParameters.getOrDefault(paramKey, null);
+    public static  JSONArray parseWiremockParametersToJsonArray(Parameters parameters, String paramKey) {
+        //Parameters allParameters = Parameters.of(parameters);
+        Object specificParameters = parameters.getOrDefault(paramKey, null);
         JSONArray formattedParameters = new JSONArray();
 
         if(specificParameters != null) {

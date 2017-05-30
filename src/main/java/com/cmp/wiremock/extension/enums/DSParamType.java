@@ -22,8 +22,10 @@ public enum DSParamType {
     FROM_HEADER("getFromHeader"),
     FROM_COOKIE("getFromCookie"),
     COMPOUND_VALUE("compoundValue"),
-    FROM_SAVED_RESPONSE("fromResponseWithTag"),
-    FROM_REQUEST("fromRequest");
+    FROM_SAVED_RESPONSE("fromResponse"),
+    FROM_REQUEST("fromRequest"),
+    SAVE_RESPONSE("saveResponseWithTag"),
+    DELETE_RESPONSE("deleteResponseWithTag");
 
     private String paramKey;
 

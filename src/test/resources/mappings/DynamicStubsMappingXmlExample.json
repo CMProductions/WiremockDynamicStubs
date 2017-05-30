@@ -9,48 +9,49 @@
                 "transformers":[
                         "DynamicStubs"
                 ],
-                "transformerParameters":{
-                        "dynamicStubsParameters":{
-                                "fromRequest":[
-                                        {
+                "transformerParameters": {
+                        "dynamicStubsParameters": {
+                                "fromRequest": {
                                         "transformXmlNode":[
                                                 {
-                                                        "xpath":"//Name/First",
-                                                        "getNewValue":"New Name"
+                                                        "xpath": "//Name/First",
+                                                        "getNewValue": "New Name"
                                                 },
                                                 {
-                                                        "xpath":"//Name/Last/text()",
-                                                        "getRandomValue":"STRING_20"
+                                                        "xpath": "//Name/Last/text()",
+                                                        "getRandomValue": "STRING_20"
                                                 },
                                                 {
-                                                        "xpath":"//Name/Last/text()",
-                                                        "getFromQueryParameter":"name"
+                                                        "xpath": "//Name/Last/text()",
+                                                        "getFromQueryParameter": "name"
                                                 },
                                                 {
-                                                        "xpath":"//Records/Record/Name/First/text()",
-                                                        "getFromBodyXpath":"//OffenderId/text()"
+                                                        "xpath": "//Records/Record/Name/First/text()",
+                                                        "getFromBodyXpath": "//OffenderId/text()"
                                                 },
                                                 {
-                                                        "nodeName":"First",
-                                                        "compoundValue":[
+                                                        "nodeName": "First",
+                                                        "compoundValue": [
                                                                 {
-                                                                        "getFromBodyXpath":"//OffenderId/text()"
+                                                                        "getFromBodyXpath": "//OffenderId/text()"
                                                                 },
                                                                 {
-                                                                        "getRandomValue":"RANDOM_STRING"
+                                                                        "getRandomValue": "RANDOM_STRING"
                                                                 }
                                                         ]
                                                 }
-                                                ]
-                                        }
-                                ],
-                                "fromResponseWithTag":"id003",
-                                        "transformXmlNode":[
-                                        {
-                                                "xpath": "//Name/First/text()",
-                                                "getNewValue": "New Name"
-                                        }
-                                ]
+                                        ]
+                                },
+                                "fromResponse": {
+                                        "withTag": "id003",
+                                        "transformXmlNode": [
+                                                {
+                                                        "xpath": "//Name/First/text()",
+                                                        "getNewValue": "New Name"
+                                                }
+                                        ]
+                                }
+                        }
                 },
                 "bodyFileName":"TEMPLATE.xml"
         },
