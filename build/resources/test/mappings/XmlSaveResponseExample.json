@@ -11,8 +11,8 @@
                 ],
                 "transformerParameters": {
                         "dynamicStubsParameters": {
-                                "fromRequest": {
-                                        "transformXmlNode":[
+                                "transformXmlNode": {
+                                        "fromRequest":[
                                                 {
                                                         "fillByXpath": "//Name/First/text()",
                                                         "getNewValue": "ChangedName"
