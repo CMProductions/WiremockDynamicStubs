@@ -173,7 +173,7 @@ public class ExtensionTests {
                 .get("http://localhost:8886" + "/webservice/soap/AM2/?wsdl")
                 .then();
 
-        //System.out.println("RESPONSE: " + response.extract().body().asString());
+        System.out.println("RESPONSE: " + response.extract().body().asString());
 
         wiremock.stop();
     }

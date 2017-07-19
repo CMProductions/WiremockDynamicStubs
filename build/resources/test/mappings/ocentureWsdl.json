@@ -18,14 +18,6 @@
               "getNewValue": "https://wiremock:8082/webservice/soap/AM2/index.php"
             }
           ]
-        },
-        "transformXmlNode": {
-          "fromRequest": [
-            {
-              "fillByRegex": "(https://ocenture.net.st1.ocenture.com:443)",
-              "getNewValue": "https://wiremock:8082/webservice/soap/AM2/index.php"
-            }
-          ]
         }
       }
     },

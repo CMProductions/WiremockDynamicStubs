@@ -4,52 +4,27 @@
                 "method":"POST",
                 "urlPath":"/fake/json/transform"
         },
-        "response":{
-                "status":200,
-                "transformers":[
+        "response": {
+                "status": 200,
+                "transformers": [
                         "DynamicStubs"
                 ],
-                "transformerParameters":{
-                        "dynamicStubsParameters":{
-                                "transformXmlNode":[
-                                        {
-                                                "fillByXpath":"//Name/First/text()",
-                                                "getNewValue":"New Name"
-                                        },
-                                        {
-                                                "fillByXpath":"//Name/Last/text()",
-                                                "getRandomValue":"POSITIVE_FLOAT"
-                                        },
-                                        {
-                                                "fillByXpath":"//Name/Last/text()",
-                                                "getFromQueryParameter":"name"
-                                        },
-                                        {
-                                                "fillByXpath":"//First/text()",
-                                                "getFromBodyJsonPath":"$.query.emails[0].address"
-                                        }
-
-                                ],
-                                "transformJsonNode":[
-                                        {
-                                                "fillByJsonPath":"$.Records.Record.Name.First",
-                                                "getNewValue":"LET'S SEE WHAT HAPPENS"
-                                        },
-                                        {
-                                                "fillByJsonKey":"Others",
-                                                "getNewValue":"LET'S SEE WHAT HAPPENS"
-                                        }
-                                ]
-                        },
-                        "otherParameters":{
-
+                "transformerParameters": {
+                        "dynamicStubsParameters": {
+                                "transformJsonNode": {
+                                        "fromRequest": [
+                                                {
+                                                        "fillByJsonPath": "$.Records.Record.Name.First",
+                                                        "getNewValue": "LET'S SEE WHAT HAPPENS"
+                                                },
+                                                {
+                                                        "fillByJsonKey": "Others",
+                                                        "getNewValue": "LET'S SEE WHAT HAPPENS"
+                                                }
+                                        ]
+                                }
                         }
                 },
-                "bodyFileName":"TEMPLATE.json"
-        },
-        "postServeActions":{
-                "Postback":{
-                        "baseUrl":"http://thiscouldbe.com/whatever"
-                }
+                "bodyFileName": "TEMPLATE.json"
         }
 }

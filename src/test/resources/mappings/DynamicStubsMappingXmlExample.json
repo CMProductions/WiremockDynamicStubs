@@ -11,8 +11,8 @@
                 ],
                 "transformerParameters": {
                         "dynamicStubsParameters": {
-                                "fromRequest": {
-                                        "transformXmlNode":[
+                                "transformXmlNode": {
+                                        "fromRequest": [
                                                 {
                                                         "fillByXpath": "//Name/First",
                                                         "getNewValue": "New Name"
@@ -41,23 +41,9 @@
                                                         ]
                                                 }
                                         ]
-                                },
-                                "fromResponse": {
-                                        "withTag": "id003",
-                                        "transformXmlNode": [
-                                                {
-                                                        "fillByXpath": "//Name/First/text()",
-                                                        "getNewValue": "New Name"
-                                                }
-                                        ]
                                 }
                         }
                 },
                 "bodyFileName":"TEMPLATE.xml"
-        },
-        "postServeActions":{
-                "Postback":{
-                        "baseUrl":"http://thiscouldbe.com/whatever"
-                }
         }
 }
