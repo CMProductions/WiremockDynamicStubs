@@ -158,4 +158,23 @@ public class ExtensionTests {
 
         wiremock.stop();
     }
+
+    @Test
+    public void jsonResponseDefinitionTransformerFromMappingTestChangingAttribute() {
+        WireMockServer wiremock = new WireMockServer(wireMockConfig()
+                .extensions(new DynamicStubs())
+                .port(8886));
+        wiremock.start();
+        wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
+
+        ValidatableResponse response = given()
+                .spec(new RequestSpecBuilder().build())
+                .when()
+                .get("http://localhost:8886" + "/webservice/soap/AM2/?wsdl")
+                .then();
+
+        //System.out.println("RESPONSE: " + response.extract().body().asString());
+
+        wiremock.stop();
+    }
 }
