@@ -1,0 +1,29 @@
+{
+        "priority":10,
+        "request":{
+                "method":"POST",
+                "urlPath":"/fake/xml/save"
+        },
+        "response":{
+                "status":200,
+                "transformers":[
+                        "DynamicStubs"
+                ],
+                "transformerParameters": {
+                        "dynamicStubsParameters": {
+                                "transformXmlNode": {
+                                        "fromRequest":[
+                                                {
+                                                        "fillByXpath": "//Name/First/text()",
+                                                        "getNewValue": "ChangedName"
+                                                }
+                                        ]
+                                },
+                                "saveResponseWithTag": {
+                                        "getNewValue": "example"
+                                }
+                        }
+                },
+                "bodyFileName":"TEMPLATE.xml"
+        }
+}

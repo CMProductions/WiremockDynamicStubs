@@ -1,0 +1,723 @@
+<definitions xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="urn:AccountManagement" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="urn:AccountManagement">
+    <types>
+        <xsd:schema targetNamespace="urn:AccountManagement">
+            <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+            <xsd:import namespace="http://schemas.xmlsoap.org/wsdl/"/>
+            <xsd:complexType name="CreateAccountInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BundleCode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="Prefix" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="FirstName" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="LastName" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="MiddleInitial" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Suffix" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Company" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Address" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Address2" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="City" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="State" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Zipcode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Country" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Phone" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Email" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Username" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Password" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SecurityQuestion" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SecurityAnswer" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SSN" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="DOB" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Gender" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CreditCardType" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CreditCardNumber" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CCExpirationDate" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="AccountType" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="RepID" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ResellerID" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="PlanCode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ContactId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="OpportunityId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CampaignId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="AgentId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CreatedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="CreateAccountOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="CreateRetailAccountInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BundleCode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="Prefix" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="FirstName" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="LastName" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="MiddleInitial" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Suffix" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Address" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Address2" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="City" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="State" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Zipcode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Country" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Phone" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Email" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="UseSameForBilling" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BillingAddress" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BillingAddress2" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BillingCity" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BillingState" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BillingZipcode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BillingCountry" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BillingPhone" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="BillingEmail" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Username" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Password" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SecurityQuestion" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SecurityAnswer" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SSN" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="DOB" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Gender" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="AccountType" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="RepID" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ResellerID" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="PlanCode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ContactId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="OpportunityId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CampaignId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="AgentId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CreatedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="CreateRetailAccountOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="UpdatePaymentInfoInput">
+                <xsd:all>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="MembershipID" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="NameOnCard" type="xsd:string"/>
+                    <xsd:element name="PaymentDetails" type="xsd:string"/>
+                    <xsd:element name="ModifiedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="UpdatePaymentInfoOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="CancelAccountInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ModifiedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="CancelAccountOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="ReactivateAccountInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ModifiedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="ReactivateAccountOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="UpgradeAccountInput">
+                <xsd:all>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string"/>
+                    <xsd:element name="ModifiedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="UpgradeAccountOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="AddSecondaryAccountInput">
+                <xsd:all>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string"/>
+                    <xsd:element name="Prefix" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="FirstName" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="LastName" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="MiddleInitial" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Suffix" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Company" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Address" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Address2" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="City" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="State" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Zipcode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Country" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Phone" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Email" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Username" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Password" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SecurityQuestion" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SecurityAnswer" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="SSN" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="DOB" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Gender" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="AccountType" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="RepID" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ResellerID" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="PlanCode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ContactId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="OpportunityId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CampaignId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="AgentId" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="CreatedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="AddSecondaryAccountOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="CheckUsernameInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="ProductCode" type="xsd:string"/>
+                    <xsd:element name="Username" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="CheckUsernameOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="UpdateAccountInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Prefix" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="FirstName" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="LastName" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="MiddleInitial" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Suffix" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Address" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Address2" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="City" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="State" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Zipcode" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Phone" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Email" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="DOB" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="Gender" type="xsd:string" nillable="true" minOccurs="0"/>
+                    <xsd:element name="ModifiedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="UpdateAccountOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="GetAVASKeyInput">
+                <xsd:all>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="SeqNumber" type="xsd:string"/>
+                    <xsd:element name="ModifiedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="GetAVASKeyOutput">
+                <xsd:all>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="AVASLicenseKey" type="xsd:string"/>
+                    <xsd:element name="SeqNumber" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="DownloadAVASInput">
+                <xsd:all>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                    <xsd:element name="ModifiedBy" type="xsd:string" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="DownloadAVASOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="RemoteSupportActivityInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="RemoteSupportActivityOutput">
+                <xsd:complexContent>
+                    <xsd:restriction base="SOAP-ENC:Array">
+                        <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:RemoteSupportActivityData[]"/>
+                    </xsd:restriction>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="RemoteSupportActivityData">
+                <xsd:all>
+                    <xsd:element name="CaseID" type="xsd:int"/>
+                    <xsd:element name="Issue" type="xsd:string"/>
+                    <xsd:element name="Duration" type="xsd:int"/>
+                    <xsd:element name="Started" type="xsd:dateTime"/>
+                    <xsd:element name="Ended" type="xsd:dateTime"/>
+                    <xsd:element name="Memo" type="xsd:string"/>
+                    <xsd:element name="Notes" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="OnsiteSupportActivityInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int" nillable="true" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="OnsiteSupportActivityOutput">
+                <xsd:complexContent>
+                    <xsd:restriction base="SOAP-ENC:Array">
+                        <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:OnsiteSupportActivityData[]"/>
+                    </xsd:restriction>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="OnsiteSupportActivityData">
+                <xsd:all>
+                    <xsd:element name="CaseID" type="xsd:int"/>
+                    <xsd:element name="SkuName" type="xsd:string"/>
+                    <xsd:element name="SkuPrice" type="xsd:decimal"/>
+                    <xsd:element name="Purchased" type="xsd:dateTime"/>
+                    <xsd:element name="Scheduled" type="xsd:dateTime" nillable="true"/>
+                    <xsd:element name="Completed" type="xsd:boolean"/>
+                    <xsd:element name="Issue" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="Notes" type="xsd:string" minOccurs="0" nillable="true"/>
+                    <xsd:element name="Contact" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="LocationName" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="LocationAddress1" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="LocationAddress2" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="LocationCity" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="LocationState" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="LocationZip" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="LocationPhone" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="LocationType" type="xsd:string" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="UMSInsertInput">
+                <xsd:all>
+                    <xsd:element name="ClientID" type="xsd:int"/>
+                    <xsd:element name="RepID" type="xsd:string"/>
+                    <xsd:element name="SponsorID" type="xsd:string"/>
+                    <xsd:element name="UplineID" type="xsd:string"/>
+                    <xsd:element name="Rank" type="xsd:int"/>
+                    <xsd:element name="FirstName" type="xsd:string"/>
+                    <xsd:element name="LastName" type="xsd:string"/>
+                    <xsd:element name="Address" type="xsd:string"/>
+                    <xsd:element name="City" type="xsd:string"/>
+                    <xsd:element name="StateProvince" type="xsd:string"/>
+                    <xsd:element name="Country" type="xsd:string"/>
+                    <xsd:element name="ZipCode" type="xsd:string"/>
+                    <xsd:element name="JoinDate" type="xsd:string"/>
+                    <xsd:element name="Active" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="UMSInsertOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="GetUserStatusInput">
+                <xsd:all>
+                    <xsd:element name="ClientMemberID" type="xsd:string"/>
+                    <xsd:element name="MembershipID" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="GetUserStatusOutput">
+                <xsd:all>
+                    <xsd:element name="Status" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+        </xsd:schema>
+    </types>
+    <message name="CreateAccountRequest">
+        <part name="AccountInfo" type="tns:CreateAccountInput"/>
+    </message>
+    <message name="CreateAccountResponse">
+        <part name="Return" type="tns:CreateAccountOutput"/>
+    </message>
+    <message name="CreateRetailAccountRequest">
+        <part name="AccountInfo" type="tns:CreateRetailAccountInput"/>
+    </message>
+    <message name="CreateRetailAccountResponse">
+        <part name="Return" type="tns:CreateRetailAccountOutput"/>
+    </message>
+    <message name="UpdatePaymentInfoRequest">
+        <part name="UpdatePaymentInfoInfo" type="tns:UpdatePaymentInfoInput"/>
+    </message>
+    <message name="UpdatePaymentInfoResponse">
+        <part name="Return" type="tns:UpdatePaymentInfoOutput"/>
+    </message>
+    <message name="CancelAccountRequest">
+        <part name="CancelAccountInfo" type="tns:CancelAccountInput"/>
+    </message>
+    <message name="CancelAccountResponse">
+        <part name="Return" type="tns:CancelAccountOutput"/>
+    </message>
+    <message name="ReactivateAccountRequest">
+        <part name="ReactivateAccountInfo" type="tns:ReactivateAccountInput"/>
+    </message>
+    <message name="ReactivateAccountResponse">
+        <part name="Return" type="tns:ReactivateAccountOutput"/>
+    </message>
+    <message name="UpgradeAccountRequest">
+        <part name="UpgradeAccountInfo" type="tns:UpgradeAccountInput"/>
+    </message>
+    <message name="UpgradeAccountResponse">
+        <part name="Return" type="tns:UpgradeAccountOutput"/>
+    </message>
+    <message name="AddSecondaryAccountRequest">
+        <part name="AccountInfo" type="tns:AddSecondaryAccountInput"/>
+    </message>
+    <message name="AddSecondaryAccountResponse">
+        <part name="Return" type="tns:AddSecondaryAccountOutput"/>
+    </message>
+    <message name="CheckUsernameRequest">
+        <part name="CheckUsernameInfo" type="tns:CheckUsernameInput"/>
+    </message>
+    <message name="CheckUsernameResponse">
+        <part name="Return" type="tns:CheckUsernameOutput"/>
+    </message>
+    <message name="UpdateAccountRequest">
+        <part name="UpdateAccountInfo" type="tns:UpdateAccountInput"/>
+    </message>
+    <message name="UpdateAccountResponse">
+        <part name="Return" type="tns:UpdateAccountOutput"/>
+    </message>
+    <message name="GetAVASKeyRequest">
+        <part name="GetAVASKeyInfo" type="tns:GetAVASKeyInput"/>
+    </message>
+    <message name="GetAVASKeyResponse">
+        <part name="Return" type="tns:GetAVASKeyOutput"/>
+    </message>
+    <message name="DownloadAVASRequest">
+        <part name="DownloadAVASInfo" type="tns:DownloadAVASInput"/>
+    </message>
+    <message name="DownloadAVASResponse">
+        <part name="Return" type="tns:DownloadAVASOutput"/>
+    </message>
+    <message name="RemoteSupportActivityRequest">
+        <part name="RemoteSupportActivityInfo" type="tns:RemoteSupportActivityInput"/>
+    </message>
+    <message name="RemoteSupportActivityResponse">
+        <part name="Return" type="tns:RemoteSupportActivityOutput"/>
+    </message>
+    <message name="OnsiteSupportActivityRequest">
+        <part name="OnsiteSupportActivityInfo" type="tns:OnsiteSupportActivityInput"/>
+    </message>
+    <message name="OnsiteSupportActivityResponse">
+        <part name="Return" type="tns:OnsiteSupportActivityOutput"/>
+    </message>
+    <message name="UMSInsertRequest">
+        <part name="UMSInsertInfo" type="tns:UMSInsertInput"/>
+    </message>
+    <message name="UMSInsertResponse">
+        <part name="Status" type="tns:UMSInsertOutput"/>
+    </message>
+    <message name="GetUserStatusRequest">
+        <part name="GetUserStatusInfo" type="tns:GetUserStatusInput"/>
+    </message>
+    <message name="GetUserStatusResponse">
+        <part name="Return" type="tns:GetUserStatusOutput"/>
+    </message>
+    <portType name="AccountManagementPortType">
+        <operation name="CreateAccount">
+            <documentation>
+                This operation can be used to create an account with Ocenture. Upon successful completion of this operation, the account owner will be able to start using Ocenture services. If the operation is successful it returns your unique identifier (ClientMemberID), Ocenture unique identifier (MembershipID) and product code (ProductCode) .
+            </documentation>
+            <input message="tns:CreateAccountRequest"/>
+            <output message="tns:CreateAccountResponse"/>
+        </operation>
+        <operation name="CreateRetailAccount">
+            <documentation>
+                This operation can be used to create a Retail account with Ocenture (billed by Ocenture with payment details provided via UpdatePaymentInfo method). Upon successful completion of this operation, an incomplete/inactive order will be created and it will return your unique identifier (ClientMemberID), Ocenture unique identifier (MembershipID) and product code (ProductCode). Order activation will require the successful completion of an UpdatePaymentInfo method using this response data plus additional attributes as described in that method.
+            </documentation>
+            <input message="tns:CreateRetailAccountRequest"/>
+            <output message="tns:CreateRetailAccountResponse"/>
+        </operation>
+        <operation name="UpdatePaymentInfo">
+            <documentation>
+                This operation can be used to add or update payment details for an existing Retail order record.
+            </documentation>
+            <input message="tns:UpdatePaymentInfoRequest"/>
+            <output message="tns:UpdatePaymentInfoResponse"/>
+        </operation>
+        <operation name="CancelAccount">
+            <documentation>
+                This operation can be used to cancel an existing account.
+            </documentation>
+            <input message="tns:CancelAccountRequest"/>
+            <output message="tns:CancelAccountResponse"/>
+        </operation>
+        <operation name="ReactivateAccount">
+            <documentation>
+                This operation can be used to reactivate an existing cancelled account.
+            </documentation>
+            <input message="tns:ReactivateAccountRequest"/>
+            <output message="tns:ReactivateAccountResponse"/>
+        </operation>
+        <operation name="UpgradeAccount">
+            <documentation>
+                This operation can be used to update a Product ID to communicate an upgrade.
+            </documentation>
+            <input message="tns:UpgradeAccountRequest"/>
+            <output message="tns:UpgradeAccountResponse"/>
+        </operation>
+        <operation name="AddSecondaryAccount">
+            <documentation>
+                This operation can be used to create an account with Ocenture. Upon successful completion of this operation, the account owner will be able to start using Ocenture services. If the operation is successful it returns your unique identifier (ClientMemberID), Ocenture unique identifier (MembershipID) and product code (ProductCode) .
+            </documentation>
+            <input message="tns:AddSecondaryAccountRequest"/>
+            <output message="tns:AddSecondaryAccountResponse"/>
+        </operation>
+        <operation name="CheckUsername">
+            <documentation>
+                This operation can be used to determine if the specified Username is available for the ClientID + ProductCode submitted.
+            </documentation>
+            <input message="tns:CheckUsernameRequest"/>
+            <output message="tns:CheckUsernameResponse"/>
+        </operation>
+        <operation name="UpdateAccount">
+            <documentation>
+                This operation can be used to change any of the attributes of the specified account.
+            </documentation>
+            <input message="tns:UpdateAccountRequest"/>
+            <output message="tns:UpdateAccountResponse"/>
+        </operation>
+        <operation name="GetAVASKey">
+            <documentation>
+                This operation can be used to retrieve an antivirus key or produce a new antivirus key. The submitted MembershipID will be validated to ensure an active computer protection benefit. Upon successful verification, the method will retrieve the existing antivirus key or create a new antivirus key.
+            </documentation>
+            <input message="tns:GetAVASKeyRequest"/>
+            <output message="tns:GetAVASKeyResponse"/>
+        </operation>
+        <operation name="DownloadAVAS">
+            <documentation>
+                This operation can be used to fulfill an antivirus software request. The submitted MembershipID, if validated with an active computer protection benefit, will be sent an email containing a license key, installation instructions, and a product brochure. This will be sent to the email address on file.
+            </documentation>
+            <input message="tns:DownloadAVASRequest"/>
+            <output message="tns:DownloadAVASResponse"/>
+        </operation>
+        <operation name="RemoteSupportActivity">
+            <documentation>
+                This function is used to retrieve all remote support activity data about a specific order
+            </documentation>
+            <input message="tns:RemoteSupportActivityRequest"/>
+            <output message="tns:RemoteSupportActivityResponse"/>
+        </operation>
+        <operation name="OnsiteSupportActivity">
+            <documentation>
+                This function is used to retrieve all remote support activity data about a specific order
+            </documentation>
+            <input message="tns:OnsiteSupportActivityRequest"/>
+            <output message="tns:OnsiteSupportActivityResponse"/>
+        </operation>
+        <operation name="UMSInsert">
+            <documentation>
+                This operation can be used to insert a new user in Unified Messages Downline. (This must be done before the CreateAccount call)
+            </documentation>
+            <input message="tns:UMSInsertRequest"/>
+            <output message="tns:UMSInsertResponse"/>
+        </operation>
+        <operation name="GetUserStatus">
+            <documentation>
+                This operation can be used to return a status indicating the the usuage state for the specified product account.
+            </documentation>
+            <input message="tns:GetUserStatusRequest"/>
+            <output message="tns:GetUserStatusResponse"/>
+        </operation>
+    </portType>
+    <binding name="AccountManagementBinding" type="tns:AccountManagementPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="CreateAccount">
+            <soap:operation soapAction="urn:AccountManagement#CreateAccount" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="CreateRetailAccount">
+            <soap:operation soapAction="urn:AccountManagement#CreateRetailAccount" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="UpdatePaymentInfo">
+            <soap:operation soapAction="urn:AccountManagement#UpdatePaymentInfo" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="CancelAccount">
+            <soap:operation soapAction="urn:AccountManagement#CancelAccount" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="ReactivateAccount">
+            <soap:operation soapAction="urn:AccountManagement#ReactivateAccount" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="UpgradeAccount">
+            <soap:operation soapAction="urn:AccountManagement#UpgradeAccount" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="AddSecondaryAccount">
+            <soap:operation soapAction="urn:AccountManagement#AddSecondaryAccount" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="CheckUsername">
+            <soap:operation soapAction="urn:AccountManagement#CheckUsername" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="UpdateAccount">
+            <soap:operation soapAction="urn:AccountManagement#UpdateAccount" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="GetAVASKey">
+            <soap:operation soapAction="urn:AccountManagement#GetAVASKey" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="DownloadAVAS">
+            <soap:operation soapAction="urn:AccountManagement#DownloadAVAS" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="RemoteSupportActivity">
+            <soap:operation soapAction="urn:AccountManagement#RemoteSupportActivity" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="OnsiteSupportActivity">
+            <soap:operation soapAction="urn:AccountManagement#OnsiteSupportActivity" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="UMSInsert">
+            <soap:operation soapAction="urn:AccountManagement#UMSInsert" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+        <operation name="GetUserStatus">
+            <soap:operation soapAction="urn:AccountManagement#GetUserStatus" style="rpc"/>
+            <input>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="urn:AccountManagement" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+    </binding>
+    <service name="AccountManagement">
+        <port name="AccountManagementPort" binding="tns:AccountManagementBinding">
+            <soap:address location="https://ocenture.net.st1.ocenture.com:443/webservice/soap/AM2/index.php"/>
+        </port>
+    </service>
+</definitions>

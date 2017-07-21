@@ -1,0 +1,49 @@
+{
+        "priority":10,
+        "request":{
+                "method":"POST",
+                "urlPath":"/fake/xml/transform"
+        },
+        "response":{
+                "status":200,
+                "transformers":[
+                        "DynamicStubs"
+                ],
+                "transformerParameters": {
+                        "dynamicStubsParameters": {
+                                "transformXmlNode": {
+                                        "fromRequest": [
+                                                {
+                                                        "fillByXpath": "//Name/First",
+                                                        "getNewValue": "New Name"
+                                                },
+                                                {
+                                                        "fillByXpath": "//Name/Last/text()",
+                                                        "getRandomValue": "STRING_20"
+                                                },
+                                                {
+                                                        "fillByXpath": "//Name/Last/text()",
+                                                        "getFromQueryParameter": "name"
+                                                },
+                                                {
+                                                        "fillByXpath": "//Records/Record/Name/First/text()",
+                                                        "getFromBodyXpath": "//OffenderId/text()"
+                                                },
+                                                {
+                                                        "fillByNodeName": "First",
+                                                        "compoundValue": [
+                                                                {
+                                                                        "getFromBodyXpath": "//OffenderId/text()"
+                                                                },
+                                                                {
+                                                                        "getRandomValue": "RANDOM_STRING"
+                                                                }
+                                                        ]
+                                                }
+                                        ]
+                                }
+                        }
+                },
+                "bodyFileName":"TEMPLATE.xml"
+        }
+}

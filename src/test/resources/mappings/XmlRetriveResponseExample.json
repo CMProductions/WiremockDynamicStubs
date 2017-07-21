@@ -1,0 +1,35 @@
+{
+        "priority":10,
+        "request":{
+                "method":"POST",
+                "urlPath":"/fake/xml/retrieve"
+        },
+        "response":{
+                "status":200,
+                "transformers":[
+                        "DynamicStubs"
+                ],
+                "transformerParameters": {
+                        "dynamicStubsParameters": {
+                                "transformXmlNode": {
+                                        "fromSavedResponse": [
+                                                {
+                                                        "withTag": {
+                                                                "getNewValue": "example"
+                                                                }
+                                                },
+                                                {
+                                                        "fillByXpath": "//Records/Record/Name/First/text()",
+                                                        "getFromBodyXpath": "//Name/Last/text()"
+                                                }
+                                        ]
+                                },
+                                "deleteResponseWithTag": {
+                                        "getNewValue": "example"
+                                }
+                        }
+                },
+
+                "bodyFileName":"TEMPLATE.xml"
+        }
+}

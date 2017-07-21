@@ -1,0 +1,30 @@
+{
+        "priority":10,
+        "request":{
+                "method":"POST",
+                "urlPath":"/fake/json/transform"
+        },
+        "response": {
+                "status": 200,
+                "transformers": [
+                        "DynamicStubs"
+                ],
+                "transformerParameters": {
+                        "dynamicStubsParameters": {
+                                "transformJsonNode": {
+                                        "fromRequest": [
+                                                {
+                                                        "fillByJsonPath": "$.Records.Record.Name.First",
+                                                        "getNewValue": "LET'S SEE WHAT HAPPENS"
+                                                },
+                                                {
+                                                        "fillByJsonKey": "Others",
+                                                        "getNewValue": "LET'S SEE WHAT HAPPENS"
+                                                }
+                                        ]
+                                }
+                        }
+                },
+                "bodyFileName": "TEMPLATE.json"
+        }
+}

@@ -1,16 +1,25 @@
-group 'com.cmp.wiremockdynamicstubsextension'
+group 'com.cmp.wiremock.extension'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+
     compile "com.github.tomakehurst:wiremock:2.5.1"
+
+    compile 'com.jayway.restassured:rest-assured:2.4.0'
+    compile 'com.jayway.restassured:json-schema-validator:2.4.0'
+
+    compile 'org.json:json:20160212'
+
+    compile group: 'com.github.javafaker', name: 'javafaker', version: '0.13'
 }
 
 jar {
@@ -18,8 +27,8 @@ jar {
     version =  '0.1.0'
 
     manifest {
-        attributes 'Class-Path': configurations.runtime.files.collect { "lib/$it.name" }.join(' '),
-                'Implementation-Version': project.version
+        attributes  'Class-Path': configurations.runtime.files.collect { "lib/$it.name" }.join(' '),
+                    'Implementation-Version': project.version
     }
 
     from(configurations.compile.collect { it.isDirectory() ? it : zipTree(it) })
