@@ -357,8 +357,6 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         throw new Exception("No value found in body");
     }
 
-
-
     private static String getRandomValue(String randomType) throws Exception {
         int maxNumber = getMaxNumberChars(randomType);
 
