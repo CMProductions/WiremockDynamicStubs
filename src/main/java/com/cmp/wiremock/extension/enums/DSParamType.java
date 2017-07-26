@@ -6,6 +6,7 @@ package com.cmp.wiremock.extension.enums;
 public enum DSParamType {
 
     //Template type params
+    PROXY_TEMPLATE("bodyFromProxy"),
     XML_PARAMS("transformXmlNode"),
     JSON_PARAMS("transformJsonNode"),
     PLAIN_TEXT_PARAMS("transformAsPlainText"),

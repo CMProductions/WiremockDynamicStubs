@@ -1,11 +1,12 @@
 {
   "priority":10,
   "request":{
-    "url":"/wsdl",
+    "url":"/webservice/soap/AM2/?wsdl",
     "method":"GET"
   },
+
   "response": {
-    "status": 200,
+    "proxyBaseUrl" : "https://ocenture.net.st1.ocenture.com",
     "transformers": [
       "DynamicStubs"
     ],
@@ -20,9 +21,6 @@
           ]
         }
       }
-    },
-    "bodyFileName": "ocentureWsdl.xml"
+    }
   }
 }
-
-
