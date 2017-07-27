@@ -201,7 +201,7 @@ public class ExtensionTests {
     @Test
     public void checkPostbackExtensionWorks() {
         WireMockServer wiremock = new WireMockServer(wireMockConfig()
-                .extensions(new Postback())
+                .extensions(new Postback(), new DynamicStubs())
                 .port(8886));
         wiremock.start();
         wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));

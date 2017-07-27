@@ -1,0 +1,34 @@
+{
+  "priority": 10,
+  "request": {
+    "url": "/holi",
+    "method": "POST"
+  },
+  "response": {
+    "status":200,
+    "transformers":[
+      "DynamicStubs"
+    ],
+    "transformerParameters": {
+      "dynamicStubsParameters": {
+        "transformXmlNode": {
+          "fromSavedResponse": [
+            {
+              "withTag": {
+                "getNewValue": "example"
+              }
+            },
+            {
+              "fillByXpath": "//Records/Record/Name/First/text()",
+              "getFromBodyXpath": "//Name/Last/text()"
+            }
+          ]
+        },
+        "deleteResponseWithTag": {
+          "getNewValue": "example"
+        }
+      }
+    },
+    "bodyFileName":"TEMPLATE.xml"
+  }
+}

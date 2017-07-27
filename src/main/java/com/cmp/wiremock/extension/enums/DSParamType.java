@@ -8,6 +8,9 @@ public enum DSParamType {
     POSTBACK_PARAMS("doPostbacks"),
     KEY_PARAMS("key"),
     VALUE_PARAMS("value"),
+    DOMAIN_PARAMS("domain"),
+    PATH_PARAMS("path"),
+    EXPIRY_PARAMS("path"),
 
     //Template type params
     XML_PARAMS("transformXmlNode"),
@@ -39,6 +42,7 @@ public enum DSParamType {
     COMPOUND_VALUE("compoundValue"),
     FROM_SAVED_RESPONSE("fromSavedResponse"),
     FROM_REQUEST("fromRequest"),
+    FROM_RESPONSE("fromResponse"),
     SAVE_RESPONSE("saveResponseWithTag"),
     WITH_TAG("withTag"),
     DELETE_RESPONSE("deleteResponseWithTag");

@@ -11,7 +11,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
@@ -21,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.cmp.wiremock.extension.enums.DSParamType.*;
@@ -57,7 +57,7 @@ public class Postback extends PostServeAction {
                     postbackUrl = "";
                     postbackMethod = RequestMethod.GET;
                     postbackHeaders = new ArrayList<>();
-                    postbackCookies = new BasicCookieStore();
+                    postbackCookies.clear();
 
                     doPostback(postbackParameters.getJSONObject(i));
                 }
@@ -72,18 +72,17 @@ public class Postback extends PostServeAction {
     private void doPostback(JSONObject parameters) throws Exception {
         gatherDataFromRequest(servedRequest, parameters);
         gatherDataFromResponse(servedResponse, parameters);
-
         if (!postbackUrl.isEmpty()) {
             try {
                 HttpUriRequest postbackRequest = HttpClientFactory.getHttpRequestFor(postbackMethod, postbackUrl);
+                System.out.println("HEADERS: " + postbackHeaders.toString());
                 postbackHeaders.forEach(header -> postbackRequest.addHeader(header.key(), header.firstValue()));
-
                 HttpContext postbackContext = new BasicHttpContext();
                 postbackContext.setAttribute(HttpClientContext.COOKIE_STORE, postbackCookies);
 
                 httpClient.execute(postbackRequest, postbackContext);
             } catch (Exception e) {
-                throw  new Exception("Error sending the postback");
+                throw  new Exception("Error sending the postback: " + e.getMessage());
             }
         }
         else {
@@ -147,6 +146,9 @@ public class Postback extends PostServeAction {
     private void setCookieFromRequest(Request request, JSONObject parameters) throws Exception {
         String key = "";
         String value = "";
+        String domain = "";
+        String path = "";
+        //String expiry = "";
 
         if(parameters.has(KEY_PARAMS.getKey())) {
             JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
@@ -156,9 +158,31 @@ public class Postback extends PostServeAction {
             JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
             value = gatherer.getValueFromRequest(request, valueParams);
         }
-
+        if(parameters.has(DOMAIN_PARAMS.getKey())) {
+            JSONObject domainParams = parameters.getJSONObject(DOMAIN_PARAMS.getKey());
+            domain = gatherer.getValueFromRequest(request, domainParams);
+        }
+        if(parameters.has(PATH_PARAMS.getKey())) {
+            JSONObject pathParams = parameters.getJSONObject(PATH_PARAMS.getKey());
+            path = gatherer.getValueFromRequest(request, pathParams);
+        }
+        /*if(parameters.has(EXPIRY_PARAMS.getKey())) {
+            JSONObject pathParams = parameters.getJSONObject(EXPIRY_PARAMS.getKey());
+            expiry = gatherer.getValueFromRequest(request, pathParams);
+        }*/
         if(!key.isEmpty() && !value.isEmpty()) {
-            Cookie cookie = new BasicClientCookie(key, value);
+            BasicClientCookie cookie = new BasicClientCookie(key, value);
+            if (!domain.isEmpty()) {
+                System.out.println("DOMAIN");
+                cookie.setDomain(domain);
+            }
+            if (!path.isEmpty()) {
+                System.out.println("PATH");
+                cookie.setPath(path);
+            }
+            /*if (!expiry.isEmpty()) {
+                cookie.setExpiryDate(new Date());
+            }*/
             postbackCookies.addCookie(cookie);
         }
         else {
@@ -167,8 +191,8 @@ public class Postback extends PostServeAction {
     }
 
     private void gatherDataFromResponse(LoggedResponse response, JSONObject parameters) throws Exception  {
-        if (parameters.has(FROM_REQUEST.getKey())) {
-            JSONObject fromRequestParams = parameters.getJSONObject(FROM_REQUEST.getKey());
+        if (parameters.has(FROM_RESPONSE.getKey())) {
+            JSONObject fromRequestParams = parameters.getJSONObject(FROM_RESPONSE.getKey());
 
             if(fromRequestParams.has(WITH_URL.getKey())) {
                 JSONObject urlParams = fromRequestParams.getJSONObject(WITH_URL.getKey());
@@ -222,6 +246,9 @@ public class Postback extends PostServeAction {
     private void setCookieFromResponse(LoggedResponse response, JSONObject parameters) throws Exception {
         String key = "";
         String value = "";
+        String domain = "";
+        String path = "";
+        String expiry = "";
 
         if(parameters.has(KEY_PARAMS.getKey())) {
             JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
@@ -231,9 +258,30 @@ public class Postback extends PostServeAction {
             JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
             value = gatherer.getValueFromResponse(response, valueParams);
         }
+        if(parameters.has(DOMAIN_PARAMS.getKey())) {
+            JSONObject domainParams = parameters.getJSONObject(DOMAIN_PARAMS.getKey());
+            domain = gatherer.getValueFromResponse(response, domainParams);
+        }
+        if(parameters.has(PATH_PARAMS.getKey())) {
+            JSONObject pathParams = parameters.getJSONObject(PATH_PARAMS.getKey());
+            path = gatherer.getValueFromResponse(response, pathParams);
+        }
+        if(parameters.has(EXPIRY_PARAMS.getKey())) {
+            JSONObject pathParams = parameters.getJSONObject(EXPIRY_PARAMS.getKey());
+            expiry = gatherer.getValueFromResponse(response, pathParams);
+        }
 
         if(!key.isEmpty() && !value.isEmpty()) {
-            Cookie cookie = new BasicClientCookie(key, value);
+            BasicClientCookie cookie = new BasicClientCookie(key, value);
+            if (!domain.isEmpty()) {
+                cookie.setDomain(domain);
+            }
+            if (!path.isEmpty()) {
+                cookie.setPath(path);
+            }
+            if (!expiry.isEmpty()) {
+                cookie.setExpiryDate(new Date());
+            }
             postbackCookies.addCookie(cookie);
         }
         else {

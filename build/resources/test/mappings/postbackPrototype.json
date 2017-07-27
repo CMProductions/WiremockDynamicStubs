@@ -44,6 +44,15 @@
                 },
                 "value": {
                   "getNewValue": "testcookie"
+                },
+                "domain": {
+                  "getNewValue": "seekverify.com"
+                },
+                "path": {
+                  "getNewValue": "/"
+                },
+                "expiry": {
+                  "getNewValue": "2018-03-16"
                 }
               },
               {
