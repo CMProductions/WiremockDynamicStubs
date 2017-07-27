@@ -1,6 +1,7 @@
 package com.cmp.wiremock.extension.utils;
 
 import com.github.tomakehurst.wiremock.common.BinaryFile;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.w3c.dom.Document;
@@ -75,5 +76,30 @@ public class DataParser {
 
     public byte[] toByteArray() throws Exception {
         return objectAsString.getBytes();
+    }
+
+    public RequestMethod toRequestMethod() throws Exception {
+        switch (objectAsString) {
+            case "GET":
+                return RequestMethod.GET;
+            case "POST" :
+                return RequestMethod.POST;
+            case "PUT" :
+                return RequestMethod.PUT;
+            case "DELETE" :
+                return RequestMethod.DELETE;
+            case "PATCH" :
+                return RequestMethod.PATCH;
+            case "OPTIONS" :
+                return RequestMethod.OPTIONS;
+            case "HEAD" :
+                return RequestMethod.HEAD;
+            case "TRACE" :
+                return RequestMethod.TRACE;
+            case "ANY" :
+                return RequestMethod.ANY;
+            default:
+                throw new Exception("Http method not existing");
+        }
     }
 }

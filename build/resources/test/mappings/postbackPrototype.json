@@ -1,0 +1,86 @@
+{
+  "priority":10,
+  "request":{
+    "url":"/postback",
+    "method":"GET"
+  },
+
+  "response": {
+    "status": 200
+  },
+  "postServeActions": {
+    "Postback": {
+      "doPostbacks": [
+        {
+          "fromRequest": {
+            "withUrl": {
+              "getNewValue": "http://localhost:8886/holi"
+            },
+            "withMethod": {
+              "getNewValue": "POST"
+            },
+            "withHeaders": [
+              {
+                "key": {
+                  "getNewValue": "testheader"
+                },
+                "value": {
+                  "getNewValue": "testheader"
+                }
+              },
+              {
+                "key": {
+                  "getNewValue": "testheader2"
+                },
+                "value": {
+                  "getNewValue": "testheader2"
+                }
+              }
+            ],
+            "withCookies": [
+              {
+                "key": {
+                  "getNewValue": "testcookie"
+                },
+                "value": {
+                  "getNewValue": "testcookie"
+                }
+              },
+              {
+                "key": {
+                  "getNewValue": "testcookie2"
+                },
+                "value": {
+                  "getNewValue": "testcookie2"
+                }
+              }
+            ],
+            "withBody": {
+              "withParameters": [
+                {
+                  "key": {
+                    "getNewValue": "testparam"
+                  },
+                  "value": {
+                    "getNewValue": "testparam"
+                  }
+                },
+                {
+                  "key": {
+                    "getNewValue": "testparam2"
+                  },
+                  "value": {
+                    "getNewValue": "testparam2"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Another": {
+      "getNewValue": "testparam2"
+    }
+  }
+}

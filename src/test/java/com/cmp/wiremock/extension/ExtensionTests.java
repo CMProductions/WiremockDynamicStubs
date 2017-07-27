@@ -197,4 +197,20 @@ public class ExtensionTests {
 
         wiremock.stop();
     }
+
+    @Test
+    public void checkPostbackExtensionWorks() {
+        WireMockServer wiremock = new WireMockServer(wireMockConfig()
+                .extensions(new Postback())
+                .port(8886));
+        wiremock.start();
+        wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
+        RestAssured.useRelaxedHTTPSValidation();
+        given().spec(new RequestSpecBuilder().build())
+                .when()
+                .get("http://localhost:8886" + "/postback")
+                .then();
+
+        wiremock.stop();
+    }
 }

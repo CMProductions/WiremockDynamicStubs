@@ -5,8 +5,11 @@ package com.cmp.wiremock.extension.enums;
  */
 public enum DSParamType {
 
+    POSTBACK_PARAMS("doPostbacks"),
+    KEY_PARAMS("key"),
+    VALUE_PARAMS("value"),
+
     //Template type params
-    PROXY_TEMPLATE("bodyFromProxy"),
     XML_PARAMS("transformXmlNode"),
     JSON_PARAMS("transformJsonNode"),
     PLAIN_TEXT_PARAMS("transformAsPlainText"),
@@ -17,6 +20,11 @@ public enum DSParamType {
     BY_JSON_PATH("fillByJsonPath"),
     BY_JSON_KEY("fillByJsonKey"),
     BY_REGEX("fillByRegex"),
+    WITH_URL("withUrl"),
+    WITH_METHOD("withMethod"),
+    WITH_HEADERS("withHeaders"),
+    WITH_COOKIES("withCookies"),
+    WITH_BODY("withBody"),
 
     //Get value params
     FROM_NEW("getNewValue"),
