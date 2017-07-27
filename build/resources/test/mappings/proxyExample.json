@@ -1,0 +1,26 @@
+{
+  "priority":10,
+  "request":{
+    "url":"/webservice/soap/AM2/?wsdl",
+    "method":"GET"
+  },
+
+  "response": {
+    "proxyBaseUrl" : "https://ocenture.net.st1.ocenture.com",
+    "transformers": [
+      "DynamicStubs"
+    ],
+    "transformerParameters": {
+      "dynamicStubsParameters": {
+        "transformAsPlainText": {
+          "fromRequest": [
+            {
+              "fillByRegex": "(https://ocenture.net.st1.ocenture.com:443)",
+              "getNewValue": "https://wiremock:8082/webservice/soap/AM2/index.php"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

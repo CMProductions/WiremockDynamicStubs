@@ -1,17 +1,18 @@
 package com.cmp.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.response.ValidatableResponse;
 import net.minidev.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.jayway.restassured.RestAssured.given;
 
 /**
@@ -160,7 +161,7 @@ public class ExtensionTests {
     }
 
     @Test
-    public void jsonResponseDefinitionTransformerFromMappingTestChangingAttribute() {
+    public void xmlResponseDefinitionTransformerFromMappingTestUsingRegex() {
         WireMockServer wiremock = new WireMockServer(wireMockConfig()
                 .extensions(new DynamicStubs())
                 .port(8886));
@@ -170,7 +171,26 @@ public class ExtensionTests {
         ValidatableResponse response = given()
                 .spec(new RequestSpecBuilder().build())
                 .when()
-                .get("http://localhost:8886" + "/webservice/soap/AM2/?wsdl")
+                .get("http://localhost:8886" + "/wsdl")
+                .then();
+
+        System.out.println("RESPONSE: " + response.extract().body().asString());
+
+        wiremock.stop();
+    }
+
+    @Test
+    public void xmlResponseDefinitionTransformerFromMappingGettingTemplateFromProxy() {
+        WireMockServer wiremock = new WireMockServer(wireMockConfig()
+                .extensions(new DynamicStubs())
+                .httpsPort(8886));
+        wiremock.start();
+        wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
+        RestAssured.useRelaxedHTTPSValidation();
+        ValidatableResponse response = given()
+                .spec(new RequestSpecBuilder().build())
+                .when()
+                .get("https://localhost:8886" + "/webservice/soap/AM2/?wsdl")
                 .then();
 
         System.out.println("RESPONSE: " + response.extract().body().asString());

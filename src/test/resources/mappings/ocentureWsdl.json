@@ -1,7 +1,7 @@
 {
   "priority":10,
   "request":{
-    "url":"/webservice/soap/AM2/?wsdl",
+    "url":"/wsdl",
     "method":"GET"
   },
   "response": {

@@ -5,14 +5,11 @@ import com.cmp.wiremock.extension.enums.DSParamType;
 import com.cmp.wiremock.extension.utils.DSUtils;
 import com.cmp.wiremock.extension.utils.DataParser;
 import com.github.javafaker.Faker;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.http.*;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -32,9 +29,9 @@ import java.util.regex.Pattern;
 /**
  * Created by lunabulnes
  */
-public class DynamicStubs extends ResponseDefinitionTransformer {
+public class DynamicStubs extends ResponseTransformer {
 
-    private static Map<String, ResponseDefinition> savedResponses =  new HashMap<>();
+    private static Map<String, Response> savedResponses =  new HashMap<>();
     private final static String EXTENSION_PARAMS_NAME = "dynamicStubsParameters";
     private final static Faker faker = new Faker();
 
@@ -48,18 +45,14 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
     }
 
     @Override
-    public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
-        ResponseDefinition transformedResponse = responseDefinition;
-        String templateName = responseDefinition.getBodyFileName();
+    public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
+        Response transformedResponse = response;
         Parameters dynamicStubsParameters = Parameters.of(parameters.getOrDefault(EXTENSION_PARAMS_NAME, null));
+        String bodyTemplate = getBodyFromResponse(response);
 
         try {
-            if(templateName != null && !dynamicStubsParameters.isEmpty()) {
-                String bodyTemplate = DataParser
-                        .from(files.getBinaryFileNamed(responseDefinition.getBodyFileName()))
-                        .toString();
-
-                if(dynamicStubsParameters.containsKey(DSParamType.PLAIN_TEXT_PARAMS.getKey())) {
+            if(!bodyTemplate.isEmpty() && !dynamicStubsParameters.isEmpty()) {
+                if (dynamicStubsParameters.containsKey(DSParamType.PLAIN_TEXT_PARAMS.getKey())) {
                     Parameters plainTextParameters = Parameters.of(dynamicStubsParameters.getOrDefault(DSParamType.PLAIN_TEXT_PARAMS.getKey(), null));
                     bodyTemplate = transformPlainTextTemplate(
                             request,
@@ -67,7 +60,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                             plainTextParameters
                     );
                 }
-                if(dynamicStubsParameters.containsKey(DSParamType.XML_PARAMS.getKey())) {
+                if (dynamicStubsParameters.containsKey(DSParamType.XML_PARAMS.getKey())) {
                     Parameters xmlParameters = Parameters.of(dynamicStubsParameters.getOrDefault(DSParamType.XML_PARAMS.getKey(), null));
                     bodyTemplate = transformXmlTemplate(
                             request,
@@ -75,7 +68,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                             xmlParameters
                     );
                 }
-                if(dynamicStubsParameters.containsKey(DSParamType.JSON_PARAMS.getKey())) {
+                if (dynamicStubsParameters.containsKey(DSParamType.JSON_PARAMS.getKey())) {
                     Parameters jsonParameters = Parameters.of(dynamicStubsParameters.getOrDefault(DSParamType.JSON_PARAMS.getKey(), null));
                     bodyTemplate = transformJsonTemplate(
                             request,
@@ -83,24 +76,25 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
                             jsonParameters
                     );
                 }
+                byte[] transformedBody = encodeBody(bodyTemplate, response);
 
-                transformedResponse = ResponseDefinitionBuilder
-                        .like(responseDefinition)
+                transformedResponse = Response.Builder
+                        .like(response)
                         .but()
-                        .withBodyFile(null)
-                        .withBody(bodyTemplate)
+                        .body(transformedBody)
                         .build();
 
-                if(dynamicStubsParameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
+                if (dynamicStubsParameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
                     Parameters saveParams = Parameters.of(dynamicStubsParameters.get(DSParamType.SAVE_RESPONSE.getKey()));
                     String tag = getValueFromResponse(transformedResponse, DSUtils.parseWiremockParametersToJsonObject(saveParams));
                     savedResponses.put(tag, transformedResponse);
                 }
-                if(dynamicStubsParameters.containsKey(DSParamType.DELETE_RESPONSE.getKey())) {
+                if (dynamicStubsParameters.containsKey(DSParamType.DELETE_RESPONSE.getKey())) {
                     Parameters deleteParams = Parameters.of(dynamicStubsParameters.get(DSParamType.DELETE_RESPONSE.getKey()));
                     String tag = getValueFromRequest(request, DSUtils.parseWiremockParametersToJsonObject(deleteParams));
                     savedResponses.remove(tag);
                 }
+
             }
         } catch(Exception e) {
             System.err.println("Unable to transform Response: " + e.getMessage());
@@ -108,6 +102,20 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
 
         return transformedResponse;
+    }
+
+    private String getBodyFromResponse(Response response) {
+        if(Gzip.isGzipped(response.getBody())) {
+            return Gzip.unGzipToString(response.getBody());
+        }
+        return response.getBodyAsString();
+    }
+
+    private byte[] encodeBody(String bodyResponse, Response response) throws Exception {
+        if(Gzip.isGzipped(response.getBody())) {
+            return Gzip.gzip(bodyResponse);
+        }
+        return DataParser.from(bodyResponse).toByteArray();
     }
 
     private String transformXmlTemplate(Request request, String template, Parameters parameters) throws Exception {
@@ -121,7 +129,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
         if(parameters.containsKey(DSParamType.FROM_SAVED_RESPONSE.getKey())) {
             JSONArray responseParams = DSUtils.parseWiremockParametersToJsonArray(parameters, DSParamType.FROM_SAVED_RESPONSE.getKey());
-            ResponseDefinition response = retrieveSavedResponse(request, responseParams);
+            Response response = retrieveSavedResponse(request, responseParams);
             transformXmlTemplateFromResponse(response, xmlTemplate, responseParams);
         }
 
@@ -142,7 +150,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         });
     }
 
-    private void transformXmlTemplateFromResponse(ResponseDefinition savedResponse, Document xmlTemplate, JSONArray parameters) throws Exception {
+    private void transformXmlTemplateFromResponse(Response savedResponse, Document xmlTemplate, JSONArray parameters) throws Exception {
         parameters.forEach(item -> {
             JSONObject parameter = (JSONObject) item;
             if (!parameter.has(DSParamType.WITH_TAG.getKey())) {
@@ -167,7 +175,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
         if(parameters.containsKey(DSParamType.FROM_SAVED_RESPONSE.getKey())) {
             JSONArray responseParams = DSUtils.parseWiremockParametersToJsonArray(parameters, DSParamType.FROM_SAVED_RESPONSE.getKey());
-            ResponseDefinition response = retrieveSavedResponse(request, responseParams);
+            Response response = retrieveSavedResponse(request, responseParams);
             transformJsonTemplateFromResponse(response, jsonTemplate, responseParams);
         }
 
@@ -187,7 +195,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
     }
 
-    private void transformJsonTemplateFromResponse(ResponseDefinition savedResponse, DocumentContext jsonTemplate, JSONArray parameters) throws Exception {
+    private void transformJsonTemplateFromResponse(Response savedResponse, DocumentContext jsonTemplate, JSONArray parameters) throws Exception {
         for(int i = 0; i < parameters.length(); i++) {
             String newValue = getValueFromResponse(savedResponse, parameters.getJSONObject(i));
             updateJsonTemplateValues(
@@ -207,7 +215,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
         if(parameters.containsKey(DSParamType.FROM_SAVED_RESPONSE.getKey())) {
             JSONArray responseParams = DSUtils.parseWiremockParametersToJsonArray(parameters, DSParamType.FROM_SAVED_RESPONSE.getKey());
-            ResponseDefinition response = retrieveSavedResponse(request, responseParams);
+            Response response = retrieveSavedResponse(request, responseParams);
             plainTextTemplate = transformPlainTextTemplateFromResponse(response, plainTextTemplate, responseParams);
         }
 
@@ -225,7 +233,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return transformedTemplate;
     }
 
-    private String transformPlainTextTemplateFromResponse(ResponseDefinition savedResponse, String plainTextTemplate, JSONArray parameters) throws Exception {
+    private String transformPlainTextTemplateFromResponse(Response savedResponse, String plainTextTemplate, JSONArray parameters) throws Exception {
         String transformedTemplate = plainTextTemplate;
 
         for(int i = 0; i < parameters.length(); i++) {
@@ -325,7 +333,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
     }
 
-    private static String getValueFromResponse(ResponseDefinition response, JSONObject parameter) throws Exception {
+    private static String getValueFromResponse(Response response, JSONObject parameter) throws Exception {
         if(parameter.has(DSParamType.FROM_NEW.getKey())) {
             return parameter.getString(DSParamType.FROM_NEW.getKey());
         }
@@ -334,7 +342,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         }
 
         try {
-            return getValueFromBody(response.getBody(), parameter);
+            return getValueFromBody(response.getBodyAsString(), parameter);
         } catch (Exception e) {
             throw new Exception("No value found");
         }
@@ -484,7 +492,7 @@ public class DynamicStubs extends ResponseDefinitionTransformer {
         return compoundValue;
     }
 
-    private ResponseDefinition retrieveSavedResponse(Request request, JSONArray parameters) throws Exception {
+    private Response retrieveSavedResponse(Request request, JSONArray parameters) throws Exception {
         JSONObject tagParam = getFirstJsonObjectWithMatchingKey(parameters, DSParamType.WITH_TAG.getKey());
         String responseTag = getValueFromRequest(request, tagParam);
 

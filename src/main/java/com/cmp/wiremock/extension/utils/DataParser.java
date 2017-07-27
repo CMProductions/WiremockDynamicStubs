@@ -29,7 +29,11 @@ public class DataParser {
     }
 
     public static DataParser from(BinaryFile binaryFile) {
-        String parsedFile = new String(binaryFile.readContents(), UTF_8);
+        return from(binaryFile.readContents());
+    }
+
+    public static DataParser from(byte[] byteArray) {
+        String parsedFile = new String(byteArray, UTF_8);
         return new DataParser(parsedFile);
     }
 
@@ -67,5 +71,9 @@ public class DataParser {
 
     public DocumentContext toDocumentContext() throws Exception {
         return JsonPath.parse(objectAsString);
+    }
+
+    public byte[] toByteArray() throws Exception {
+        return objectAsString.getBytes();
     }
 }
