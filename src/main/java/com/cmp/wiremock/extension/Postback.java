@@ -56,7 +56,7 @@ public class Postback extends PostServeAction {
                 for (int i = 0; i < postbackParameters.length(); i++) {
                     postbackUrl = "";
                     postbackMethod = RequestMethod.GET;
-                    postbackHeaders = new ArrayList<>();
+                    postbackHeaders.clear();
                     postbackCookies.clear();
 
                     doPostback(postbackParameters.getJSONObject(i));
@@ -72,10 +72,10 @@ public class Postback extends PostServeAction {
     private void doPostback(JSONObject parameters) throws Exception {
         gatherDataFromRequest(servedRequest, parameters);
         gatherDataFromResponse(servedResponse, parameters);
+
         if (!postbackUrl.isEmpty()) {
             try {
                 HttpUriRequest postbackRequest = HttpClientFactory.getHttpRequestFor(postbackMethod, postbackUrl);
-                System.out.println("HEADERS: " + postbackHeaders.toString());
                 postbackHeaders.forEach(header -> postbackRequest.addHeader(header.key(), header.firstValue()));
                 HttpContext postbackContext = new BasicHttpContext();
                 postbackContext.setAttribute(HttpClientContext.COOKIE_STORE, postbackCookies);
