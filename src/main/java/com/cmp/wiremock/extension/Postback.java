@@ -8,12 +8,17 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
@@ -30,16 +35,17 @@ import static com.cmp.wiremock.extension.enums.DSParamType.*;
  */
 public class Postback extends PostServeAction {
 
-    private DataGatherer gatherer = new DataGatherer();
+    private static final String defaultCharset = "UTF-8";
+    private static final CloseableHttpClient httpClient = HttpClientFactory.createClient();
 
     private String postbackUrl = "";
     private RequestMethod postbackMethod = RequestMethod.GET;
     private List<HttpHeader> postbackHeaders = new ArrayList<>();
     private CookieStore postbackCookies = new BasicCookieStore();
+    private ArrayList<NameValuePair> bodyParameters;
+    private String rawBody = "";
 
-    private Request servedRequest = null;
-    private LoggedResponse servedResponse = null;
-    private static final CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    private DataGatherer gatherer = new DataGatherer();
 
     public String getName() {
         return "Postback";
@@ -47,17 +53,16 @@ public class Postback extends PostServeAction {
 
     @Override
     public void doAction(ServeEvent serveEvent, Admin admin, Parameters parameters) {
-        servedRequest = serveEvent.getRequest();
-        servedResponse = serveEvent.getResponse();
+        Request servedRequest = serveEvent.getRequest();
+        LoggedResponse servedResponse = serveEvent.getResponse();
 
         try {
             if(!parameters.isEmpty()) {
                 JSONArray postbackParameters = DSUtils.parseWiremockParametersToJsonArray(parameters, POSTBACK_PARAMS.getKey());
                 for (int i = 0; i < postbackParameters.length(); i++) {
-                    postbackUrl = "";
-                    postbackMethod = RequestMethod.GET;
-                    postbackHeaders.clear();
-                    postbackCookies.clear();
+                    resetPostbackConfig();
+                    gatherDataFromRequest(servedRequest, postbackParameters.getJSONObject(i));
+                    gatherDataFromResponse(servedResponse, postbackParameters.getJSONObject(i));
 
                     doPostback(postbackParameters.getJSONObject(i));
                 }
@@ -69,25 +74,13 @@ public class Postback extends PostServeAction {
         }
     }
 
-    private void doPostback(JSONObject parameters) throws Exception {
-        gatherDataFromRequest(servedRequest, parameters);
-        gatherDataFromResponse(servedResponse, parameters);
-
-        if (!postbackUrl.isEmpty()) {
-            try {
-                HttpUriRequest postbackRequest = HttpClientFactory.getHttpRequestFor(postbackMethod, postbackUrl);
-                postbackHeaders.forEach(header -> postbackRequest.addHeader(header.key(), header.firstValue()));
-                HttpContext postbackContext = new BasicHttpContext();
-                postbackContext.setAttribute(HttpClientContext.COOKIE_STORE, postbackCookies);
-
-                httpClient.execute(postbackRequest, postbackContext);
-            } catch (Exception e) {
-                throw  new Exception("Error sending the postback: " + e.getMessage());
-            }
-        }
-        else {
-            throw new Exception("URL is mandatory for sending a postback");
-        }
+    private void resetPostbackConfig() {
+        postbackUrl = "";
+        postbackMethod = RequestMethod.GET;
+        postbackHeaders.clear();
+        postbackCookies.clear();
+        bodyParameters.clear();
+        rawBody = "";
     }
 
     private void gatherDataFromRequest(Request request, JSONObject parameters) throws Exception {
@@ -116,8 +109,82 @@ public class Postback extends PostServeAction {
                 }
             }
             if(fromRequestParams.has(WITH_BODY.getKey())) {
-                //TODO: IMPLEMENT THAT
+                JSONObject bodyParams = fromRequestParams.getJSONObject(WITH_BODY.getKey());
+                if(bodyParams.has(WITH_BODY_RAWBODY.getKey())) {
+                    rawBody = gatherer.getValueFromRequest(request, bodyParams.getJSONObject(WITH_BODY_RAWBODY.getKey()));
+                }
+                if(bodyParams.has(WITH_BODY_PARAMETERS.getKey())) {
+                    JSONArray bodyParameterParams = bodyParams.getJSONArray(WITH_BODY_PARAMETERS.getKey());
+                    for (int i = 0; i < bodyParameterParams.length(); i++) {
+                        setParamFromRequest(request, bodyParameterParams.getJSONObject(i));
+                    }
+                }
             }
+        }
+    }
+
+    private void gatherDataFromResponse(LoggedResponse response, JSONObject parameters) throws Exception  {
+        if (parameters.has(FROM_RESPONSE.getKey())) {
+            JSONObject fromRequestParams = parameters.getJSONObject(FROM_RESPONSE.getKey());
+
+            if(fromRequestParams.has(WITH_URL.getKey())) {
+                JSONObject urlParams = fromRequestParams.getJSONObject(WITH_URL.getKey());
+                postbackUrl = gatherer.getValueFromResponse(response, urlParams);
+            }
+            if(fromRequestParams.has(WITH_METHOD.getKey())) {
+                JSONObject methodParams = fromRequestParams.getJSONObject(WITH_METHOD.getKey());
+                String method = gatherer.getValueFromResponse(response, methodParams);
+                postbackMethod = DataParser.from(method).toRequestMethod();
+            }
+            if(fromRequestParams.has(WITH_HEADERS.getKey())) {
+                JSONArray headerParams = fromRequestParams.getJSONArray(WITH_HEADERS.getKey());
+                for (int i = 0; i < headerParams.length(); i++) {
+                    setHeaderFromResponse(response, headerParams.getJSONObject(i));
+                }
+            }
+            if(fromRequestParams.has(WITH_COOKIES.getKey())) {
+                JSONArray cookieParams = fromRequestParams.getJSONArray(WITH_COOKIES.getKey());
+                for (int i = 0; i < cookieParams.length(); i++) {
+                    setCookieFromResponse(response, cookieParams.getJSONObject(i));
+                }
+            }
+            if(fromRequestParams.has(WITH_BODY.getKey())) {
+                JSONObject bodyParams = fromRequestParams.getJSONObject(WITH_BODY.getKey());
+                if(bodyParams.has(WITH_BODY_RAWBODY.getKey())) {
+                    rawBody = gatherer.getValueFromResponse(response, bodyParams.getJSONObject(WITH_BODY_RAWBODY.getKey()));
+                }
+                if(bodyParams.has(WITH_BODY_PARAMETERS.getKey())) {
+                    JSONArray bodyParameterParams = bodyParams.getJSONArray(WITH_BODY_PARAMETERS.getKey());
+                    for (int i = 0; i < bodyParameterParams.length(); i++) {
+                        setParamFromResponse(response, bodyParameterParams.getJSONObject(i));
+                    }
+                }
+            }
+        }
+    }
+
+    private void doPostback(JSONObject parameters) throws Exception {
+        if (!postbackUrl.isEmpty()) {
+            try {
+                HttpUriRequest postbackRequest = HttpClientFactory.getHttpRequestFor(postbackMethod, postbackUrl);
+                postbackHeaders.forEach(header -> postbackRequest.addHeader(header.key(), header.firstValue()));
+                HttpContext postbackContext = new BasicHttpContext();
+                postbackContext.setAttribute(HttpClientContext.COOKIE_STORE, postbackCookies);
+
+                if(postbackMethod != RequestMethod.GET && !bodyParameters.isEmpty()) {
+                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(new UrlEncodedFormEntity(bodyParameters, defaultCharset));
+                }
+                else if(postbackMethod != RequestMethod.GET && !rawBody.isEmpty()) {
+                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(new StringEntity(rawBody, defaultCharset));
+                }
+
+                httpClient.execute(postbackRequest, postbackContext);
+            } catch (Exception e) {
+                throw  new Exception("Error sending the postback: " + e.getMessage());
+            }
+        }
+        else {
+            throw new Exception("URL is mandatory for sending a postback");
         }
     }
 
@@ -190,34 +257,24 @@ public class Postback extends PostServeAction {
         }
     }
 
-    private void gatherDataFromResponse(LoggedResponse response, JSONObject parameters) throws Exception  {
-        if (parameters.has(FROM_RESPONSE.getKey())) {
-            JSONObject fromRequestParams = parameters.getJSONObject(FROM_RESPONSE.getKey());
+    private void setParamFromRequest(Request request, JSONObject parameters) throws Exception {
+        String key = "";
+        String value = "";
 
-            if(fromRequestParams.has(WITH_URL.getKey())) {
-                JSONObject urlParams = fromRequestParams.getJSONObject(WITH_URL.getKey());
-                postbackUrl = gatherer.getValueFromResponse(response, urlParams);
-            }
-            if(fromRequestParams.has(WITH_METHOD.getKey())) {
-                JSONObject methodParams = fromRequestParams.getJSONObject(WITH_METHOD.getKey());
-                String method = gatherer.getValueFromResponse(response, methodParams);
-                postbackMethod = DataParser.from(method).toRequestMethod();
-            }
-            if(fromRequestParams.has(WITH_HEADERS.getKey())) {
-                JSONArray headerParams = fromRequestParams.getJSONArray(WITH_HEADERS.getKey());
-                for (int i = 0; i < headerParams.length(); i++) {
-                    setHeaderFromResponse(response, headerParams.getJSONObject(i));
-                }
-            }
-            if(fromRequestParams.has(WITH_COOKIES.getKey())) {
-                JSONArray cookieParams = fromRequestParams.getJSONArray(WITH_COOKIES.getKey());
-                for (int i = 0; i < cookieParams.length(); i++) {
-                    setCookieFromResponse(response, cookieParams.getJSONObject(i));
-                }
-            }
-            if(fromRequestParams.has(WITH_BODY.getKey())) {
-                //TODO: IMPLEMENT THAT
-            }
+        if(parameters.has(KEY_PARAMS.getKey())) {
+            JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
+            key = gatherer.getValueFromRequest(request, keyParams);
+        }
+        if(parameters.has(VALUE_PARAMS.getKey())) {
+            JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
+            value = gatherer.getValueFromRequest(request, valueParams);
+        }
+        if(!key.isEmpty() && !value.isEmpty()) {
+            NameValuePair parameter = new BasicNameValuePair(key, value);
+            bodyParameters.add(parameter);
+        }
+        else {
+            throw new Exception("Missing key or value for postback cookie");
         }
     }
 
@@ -286,6 +343,27 @@ public class Postback extends PostServeAction {
         }
         else {
             throw new Exception("Missing key or value for postback cookie");
+        }
+    }
+
+    private void setParamFromResponse(LoggedResponse response, JSONObject parameters) throws Exception {
+        String key = "";
+        String value = "";
+
+        if(parameters.has(KEY_PARAMS.getKey())) {
+            JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
+            key = gatherer.getValueFromResponse(response, keyParams);
+        }
+        if(parameters.has(VALUE_PARAMS.getKey())) {
+            JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
+            value = gatherer.getValueFromResponse(response, valueParams);
+        }
+        if(!key.isEmpty() && !value.isEmpty()) {
+            NameValuePair parameter = new BasicNameValuePair(key, value);
+            bodyParameters.add(parameter);
+        }
+        else {
+            throw new Exception("Missing key or value for postback parameter");
         }
     }
 }

@@ -82,7 +82,10 @@
                     "getNewValue": "testparam2"
                   }
                 }
-              ]
+              ],
+              "withRawBody": {
+                "getNewValue": "This is a body, you can put here whatever"
+              }
             }
           }
         }

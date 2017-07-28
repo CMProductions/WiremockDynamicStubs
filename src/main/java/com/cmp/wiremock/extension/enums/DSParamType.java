@@ -28,6 +28,8 @@ public enum DSParamType {
     WITH_HEADERS("withHeaders"),
     WITH_COOKIES("withCookies"),
     WITH_BODY("withBody"),
+    WITH_BODY_PARAMETERS("withParameters"),
+    WITH_BODY_RAWBODY("withRawBody"),
 
     //Get value params
     FROM_NEW("getNewValue"),
