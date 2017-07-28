@@ -206,11 +206,9 @@ public class Postback extends PostServeAction {
         if(!key.isEmpty() && !value.isEmpty()) {
             BasicClientCookie cookie = new BasicClientCookie(key, value);
             if (!domain.isEmpty()) {
-                System.out.println("DOMAIN");
                 cookie.setDomain(domain);
             }
             if (!path.isEmpty()) {
-                System.out.println("PATH");
                 cookie.setPath(path);
             }
             /*if (!expiry.isEmpty()) {

@@ -13,15 +13,6 @@
       "dynamicStubsParameters": {
         "transformXmlNode": {
           "fromSavedResponse": [
-            {
-              "withTag": {
-                "getNewValue": "example"
-              }
-            },
-            {
-              "fillByXpath": "//Records/Record/Name/First/text()",
-              "getFromBodyXpath": "//Name/Last/text()"
-            }
           ]
         },
         "deleteResponseWithTag": {
