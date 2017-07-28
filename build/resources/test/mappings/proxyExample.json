@@ -12,11 +12,11 @@
     ],
     "transformerParameters": {
       "dynamicStubsParameters": {
-        "transformAsPlainText": {
-          "fromRequest": [
+        "transformPlainTextBody": {
+          "gatherDataFromRequest": [
             {
-              "fillByRegex": "(https://ocenture.net.st1.ocenture.com:443)",
-              "getNewValue": "https://wiremock:8082/webservice/soap/AM2/index.php"
+              "findByRegex": "(https://ocenture.net.st1.ocenture.com:443)",
+              "setFixedValue": "https://wiremock:8082/webservice/soap/AM2/index.php"
             }
           ]
         }

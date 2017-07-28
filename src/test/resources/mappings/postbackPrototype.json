@@ -1,0 +1,98 @@
+{
+  "priority":10,
+  "request":{
+    "url":"/postback",
+    "method":"GET"
+  },
+
+  "response": {
+    "status": 200
+  },
+  "postServeActions": {
+    "Postbacks": {
+      "doPostbacks": [
+        {
+          "gatherDataFromRequest": {
+            "withUrl": {
+              "setFixedValue": "http://localhost:8886/holi"
+            },
+            "withMethod": {
+              "setFixedValue": "POST"
+            },
+            "withHeaders": [
+              {
+                "key": {
+                  "setFixedValue": "testheader"
+                },
+                "value": {
+                  "setFixedValue": "testheader"
+                }
+              },
+              {
+                "key": {
+                  "setFixedValue": "testheader2"
+                },
+                "value": {
+                  "setFixedValue": "testheader2"
+                }
+              }
+            ],
+            "withCookies": [
+              {
+                "key": {
+                  "setFixedValue": "testcookie"
+                },
+                "value": {
+                  "setFixedValue": "testcookie"
+                },
+                "domain": {
+                  "setFixedValue": "seekverify.com"
+                },
+                "path": {
+                  "setFixedValue": "/"
+                },
+                "expiry": {
+                  "setFixedValue": "2018-11-01"
+                }
+              },
+              {
+                "key": {
+                  "setFixedValue": "testcookie2"
+                },
+                "value": {
+                  "setFixedValue": "testcookie2"
+                }
+              }
+            ],
+            "withBody": {
+              "withParameters": [
+                {
+                  "key": {
+                    "setFixedValue": "testparam"
+                  },
+                  "value": {
+                    "setFixedValue": "testparam"
+                  }
+                },
+                {
+                  "key": {
+                    "setFixedValue": "testparam2"
+                  },
+                  "value": {
+                    "setFixedValue": "testparam2"
+                  }
+                }
+              ],
+              "withRawBody": {
+                "setFixedValue": "This is a body you can put here whatever"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Another": {
+      "setFixedValue": "testparam2"
+    }
+  }
+}

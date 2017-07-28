@@ -22,7 +22,7 @@ public class DSUtils {
 
         for (String pair : pairs) {
             int splitIndex = pair.indexOf("=");
-            queryMap.put(URLDecoder.decode(pair.substring(0, splitIndex), "UTF-8"), URLDecoder.decode(pair.substring(splitIndex + 1), "UTF-8"));
+            queryMap.put(URLDecoder.decode(pair.substring(0, splitIndex), DataParser.defaultCharset), URLDecoder.decode(pair.substring(splitIndex + 1), DataParser.defaultCharset));
         }
         return queryMap;
     }
@@ -35,6 +35,7 @@ public class DSUtils {
             String jsonString = specificParameters.toString()
                     .replaceAll("(?! )(?!\\[)(?!])(?<=[={}, ])([^{},]+?)(?=[{}=,])", "\"$1\"")
                     .replaceAll("=", ":");
+
             formattedParameters = new JSONArray(jsonString);
         }
 

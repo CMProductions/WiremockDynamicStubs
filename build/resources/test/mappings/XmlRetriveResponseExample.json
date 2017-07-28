@@ -11,21 +11,21 @@
                 ],
                 "transformerParameters": {
                         "dynamicStubsParameters": {
-                                "transformXmlNode": {
-                                        "fromSavedResponse": [
+                                "transformXmlBody": {
+                                        "gatherDataFromSavedResponse": [
                                                 {
                                                         "withTag": {
-                                                                "getNewValue": "example"
+                                                                "setFixedValue": "example"
                                                                 }
                                                 },
                                                 {
-                                                        "fillByXpath": "//Records/Record/Name/First/text()",
-                                                        "getFromBodyXpath": "//Name/Last/text()"
+                                                        "findByXpath": "//Records/Record/Name/First/text()",
+                                                        "gatherFromBodyByXpath": "//Name/Last/text()"
                                                 }
                                         ]
                                 },
                                 "deleteResponseWithTag": {
-                                        "getNewValue": "example"
+                                        "setFixedValue": "example"
                                 }
                         }
                 },

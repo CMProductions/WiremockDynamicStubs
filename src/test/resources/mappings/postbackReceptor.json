@@ -1,0 +1,25 @@
+{
+  "priority": 10,
+  "request": {
+    "url": "/holi",
+    "method": "POST"
+  },
+  "response": {
+    "status":200,
+    "transformers":[
+      "DynamicStubs"
+    ],
+    "transformerParameters": {
+      "dynamicStubsParameters": {
+        "transformXmlNode": {
+          "gatherDataFromSavedResponse": [
+          ]
+        },
+        "deleteResponseWithTag": {
+          "setFixedValue": "example"
+        }
+      }
+    },
+    "bodyFileName":"TEMPLATE.xml"
+  }
+}
