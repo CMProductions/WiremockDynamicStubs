@@ -65,6 +65,24 @@
               }
             ],
             "withBody": {
+              "withParameters": [
+                {
+                  "key": {
+                    "getNewValue": "testparam"
+                  },
+                  "value": {
+                    "getNewValue": "testparam"
+                  }
+                },
+                {
+                  "key": {
+                    "getNewValue": "testparam2"
+                  },
+                  "value": {
+                    "getNewValue": "testparam2"
+                  }
+                }
+              ],
               "withRawBody": {
                 "getNewValue": "This is a body you can put here whatever"
               }

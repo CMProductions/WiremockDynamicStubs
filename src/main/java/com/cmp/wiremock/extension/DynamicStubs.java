@@ -80,12 +80,12 @@ public class DynamicStubs extends ResponseTransformer {
 
                 if (dynamicStubsParameters.containsKey(DSParamType.SAVE_RESPONSE.getKey())) {
                     Parameters saveParams = Parameters.of(dynamicStubsParameters.get(DSParamType.SAVE_RESPONSE.getKey()));
-                    String tag = getValueFromResponse(LoggedResponse.from(transformedResponse), DSUtils.parseWiremockParametersToJsonObject(saveParams));
+                    String tag = getValue(LoggedResponse.from(transformedResponse), DSUtils.parseWiremockParametersToJsonObject(saveParams));
                     savedResponses.put(tag, transformedResponse);
                 }
                 if (dynamicStubsParameters.containsKey(DSParamType.DELETE_RESPONSE.getKey())) {
                     Parameters deleteParams = Parameters.of(dynamicStubsParameters.get(DSParamType.DELETE_RESPONSE.getKey()));
-                    String tag = getValueFromRequest(request, DSUtils.parseWiremockParametersToJsonObject(deleteParams));
+                    String tag = getValue(request, DSUtils.parseWiremockParametersToJsonObject(deleteParams));
                     savedResponses.remove(tag);
                 }
 
@@ -136,7 +136,7 @@ public class DynamicStubs extends ResponseTransformer {
         parameters.forEach(item -> {
             JSONObject parameter = (JSONObject) item;
             try {
-                String newValue = getValueFromRequest(request, parameter);
+                String newValue = getValue(request, parameter);
                 updateXmlTemplateValues(xmlTemplate, parameter, newValue);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -149,7 +149,7 @@ public class DynamicStubs extends ResponseTransformer {
             JSONObject parameter = (JSONObject) item;
             if (!parameter.has(DSParamType.WITH_TAG.getKey())) {
                 try {
-                    String newValue = getValueFromResponse(LoggedResponse.from(savedResponse), parameter);
+                    String newValue = getValue(LoggedResponse.from(savedResponse), parameter);
                     updateXmlTemplateValues(xmlTemplate, parameter, newValue);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -180,7 +180,7 @@ public class DynamicStubs extends ResponseTransformer {
 
     private void transformJsonResponseFromRequest(Request request, DocumentContext jsonTemplate, JSONArray parameters) throws Exception {
         for(int i = 0; i < parameters.length(); i++) {
-            String newValue = getValueFromRequest(request, parameters.getJSONObject(i));
+            String newValue = getValue(request, parameters.getJSONObject(i));
             updateJsonTemplateValues(
                     jsonTemplate,
                     parameters.getJSONObject(i),
@@ -191,7 +191,7 @@ public class DynamicStubs extends ResponseTransformer {
 
     private void transformJsonTemplateFromResponse(Response savedResponse, DocumentContext jsonTemplate, JSONArray parameters) throws Exception {
         for(int i = 0; i < parameters.length(); i++) {
-            String newValue = getValueFromResponse(LoggedResponse.from(savedResponse), parameters.getJSONObject(i));
+            String newValue = getValue(LoggedResponse.from(savedResponse), parameters.getJSONObject(i));
             updateJsonTemplateValues(
                     jsonTemplate,
                     parameters.getJSONObject(i),
@@ -220,7 +220,7 @@ public class DynamicStubs extends ResponseTransformer {
         String transformedTemplate = plainTextTemplate;
 
         for(int i = 0; i < parameters.length(); i++) {
-            String newValue = getValueFromRequest(request, parameters.getJSONObject(i));
+            String newValue = getValue(request, parameters.getJSONObject(i));
             transformedTemplate = updatePlainTextTemplateValues(plainTextTemplate, parameters.getJSONObject(i), newValue);
         }
 
@@ -231,7 +231,7 @@ public class DynamicStubs extends ResponseTransformer {
         String transformedTemplate = plainTextTemplate;
 
         for(int i = 0; i < parameters.length(); i++) {
-            String newValue = getValueFromResponse(LoggedResponse.from(savedResponse), parameters.getJSONObject(i));
+            String newValue = getValue(LoggedResponse.from(savedResponse), parameters.getJSONObject(i));
             transformedTemplate = updatePlainTextTemplateValues(plainTextTemplate, parameters.getJSONObject(i), newValue);
         }
 
@@ -286,7 +286,7 @@ public class DynamicStubs extends ResponseTransformer {
 
     private Response retrieveSavedResponse(Request request, JSONArray parameters) throws Exception {
         JSONObject tagParam = getFirstJsonObjectWithMatchingKey(parameters, DSParamType.WITH_TAG.getKey());
-        String responseTag = getValueFromRequest(request, tagParam);
+        String responseTag = getValue(request, tagParam);
 
         for (int i = 0; i < savedResponses.size(); i++) {
             if(savedResponses.containsKey(responseTag)) {

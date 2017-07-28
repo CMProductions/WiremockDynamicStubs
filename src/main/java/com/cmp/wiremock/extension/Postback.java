@@ -25,7 +25,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.cmp.wiremock.extension.enums.DSParamType.*;
@@ -60,10 +59,10 @@ public class Postback extends PostServeAction {
                 JSONArray postbackParameters = DSUtils.parseWiremockParametersToJsonArray(parameters, POSTBACK_PARAMS.getKey());
                 for (int i = 0; i < postbackParameters.length(); i++) {
                     resetPostbackConfig();
-                    gatherDataFromRequest(servedRequest, postbackParameters.getJSONObject(i));
-                    gatherDataFromResponse(servedResponse, postbackParameters.getJSONObject(i));
+                    gatherData(servedRequest, postbackParameters.getJSONObject(i));
+                    gatherData(servedResponse, postbackParameters.getJSONObject(i));
 
-                    doPostback(postbackParameters.getJSONObject(i));
+                    doPostback();
                 }
             }
 
@@ -82,87 +81,54 @@ public class Postback extends PostServeAction {
         rawBody = "";
     }
 
-    private void gatherDataFromRequest(Request request, JSONObject parameters) throws Exception {
-        if (parameters.has(FROM_REQUEST.getKey())) {
+    private void gatherData(Object wiremockObject, JSONObject parameters) throws Exception {
+        if (wiremockObject.getClass().isInstance(Request.class) && parameters.has(FROM_REQUEST.getKey())) {
             JSONObject fromRequestParams = parameters.getJSONObject(FROM_REQUEST.getKey());
+            gatherDataFromSpecificSource(wiremockObject, fromRequestParams);
+        }
+        if (wiremockObject.getClass().isInstance(LoggedResponse.class) && parameters.has(FROM_RESPONSE.getKey())) {
+            JSONObject fromResponseParams = parameters.getJSONObject(FROM_RESPONSE.getKey());
+            gatherDataFromSpecificSource(wiremockObject, fromResponseParams);
+        }
+    }
 
-            if(fromRequestParams.has(WITH_URL.getKey())) {
-                JSONObject urlParams = fromRequestParams.getJSONObject(WITH_URL.getKey());
-                postbackUrl = gatherer.getValueFromRequest(request, urlParams);
+    private void gatherDataFromSpecificSource(Object wiremockObject, JSONObject parameters) throws Exception {
+        if(parameters.has(WITH_URL.getKey())) {
+            JSONObject urlParams = parameters.getJSONObject(WITH_URL.getKey());
+            postbackUrl = gatherer.getValue(wiremockObject, urlParams);
+        }
+        if(parameters.has(WITH_METHOD.getKey())) {
+            JSONObject methodParams = parameters.getJSONObject(WITH_METHOD.getKey());
+            String method = gatherer.getValue(wiremockObject, methodParams);
+            postbackMethod = DataParser.from(method).toRequestMethod();
+        }
+        if(parameters.has(WITH_HEADERS.getKey())) {
+            JSONArray headerParams = parameters.getJSONArray(WITH_HEADERS.getKey());
+            for (int i = 0; i < headerParams.length(); i++) {
+                setHeader(wiremockObject, headerParams.getJSONObject(i));
             }
-            if(fromRequestParams.has(WITH_METHOD.getKey())) {
-                JSONObject methodParams = fromRequestParams.getJSONObject(WITH_METHOD.getKey());
-                String method = gatherer.getValueFromRequest(request, methodParams);
-                postbackMethod = DataParser.from(method).toRequestMethod();
+        }
+        if(parameters.has(WITH_COOKIES.getKey())) {
+            JSONArray cookieParams = parameters.getJSONArray(WITH_COOKIES.getKey());
+            for (int i = 0; i < cookieParams.length(); i++) {
+                setCookie(wiremockObject, cookieParams.getJSONObject(i));
             }
-            if(fromRequestParams.has(WITH_HEADERS.getKey())) {
-                JSONArray headerParams = fromRequestParams.getJSONArray(WITH_HEADERS.getKey());
-                for (int i = 0; i < headerParams.length(); i++) {
-                    setHeaderFromRequest(request, headerParams.getJSONObject(i));
-                }
+        }
+        if(parameters.has(WITH_BODY.getKey())) {
+            JSONObject bodyParams = parameters.getJSONObject(WITH_BODY.getKey());
+            if(bodyParams.has(WITH_BODY_RAWBODY.getKey())) {
+                rawBody = gatherer.getValue(wiremockObject, bodyParams.getJSONObject(WITH_BODY_RAWBODY.getKey()));
             }
-            if(fromRequestParams.has(WITH_COOKIES.getKey())) {
-                JSONArray cookieParams = fromRequestParams.getJSONArray(WITH_COOKIES.getKey());
-                for (int i = 0; i < cookieParams.length(); i++) {
-                    setCookieFromRequest(request, cookieParams.getJSONObject(i));
-                }
-            }
-            if(fromRequestParams.has(WITH_BODY.getKey())) {
-                JSONObject bodyParams = fromRequestParams.getJSONObject(WITH_BODY.getKey());
-                if(bodyParams.has(WITH_BODY_RAWBODY.getKey())) {
-                    rawBody = gatherer.getValueFromRequest(request, bodyParams.getJSONObject(WITH_BODY_RAWBODY.getKey()));
-                }
-                if(bodyParams.has(WITH_BODY_PARAMETERS.getKey())) {
-                    JSONArray bodyParameterParams = bodyParams.getJSONArray(WITH_BODY_PARAMETERS.getKey());
-                    for (int i = 0; i < bodyParameterParams.length(); i++) {
-                        setParamFromRequest(request, bodyParameterParams.getJSONObject(i));
-                    }
+            if(bodyParams.has(WITH_BODY_PARAMETERS.getKey())) {
+                JSONArray bodyParameterParams = bodyParams.getJSONArray(WITH_BODY_PARAMETERS.getKey());
+                for (int i = 0; i < bodyParameterParams.length(); i++) {
+                    setParam(wiremockObject, bodyParameterParams.getJSONObject(i));
                 }
             }
         }
     }
 
-    private void gatherDataFromResponse(LoggedResponse response, JSONObject parameters) throws Exception  {
-        if (parameters.has(FROM_RESPONSE.getKey())) {
-            JSONObject fromRequestParams = parameters.getJSONObject(FROM_RESPONSE.getKey());
-
-            if(fromRequestParams.has(WITH_URL.getKey())) {
-                JSONObject urlParams = fromRequestParams.getJSONObject(WITH_URL.getKey());
-                postbackUrl = gatherer.getValueFromResponse(response, urlParams);
-            }
-            if(fromRequestParams.has(WITH_METHOD.getKey())) {
-                JSONObject methodParams = fromRequestParams.getJSONObject(WITH_METHOD.getKey());
-                String method = gatherer.getValueFromResponse(response, methodParams);
-                postbackMethod = DataParser.from(method).toRequestMethod();
-            }
-            if(fromRequestParams.has(WITH_HEADERS.getKey())) {
-                JSONArray headerParams = fromRequestParams.getJSONArray(WITH_HEADERS.getKey());
-                for (int i = 0; i < headerParams.length(); i++) {
-                    setHeaderFromResponse(response, headerParams.getJSONObject(i));
-                }
-            }
-            if(fromRequestParams.has(WITH_COOKIES.getKey())) {
-                JSONArray cookieParams = fromRequestParams.getJSONArray(WITH_COOKIES.getKey());
-                for (int i = 0; i < cookieParams.length(); i++) {
-                    setCookieFromResponse(response, cookieParams.getJSONObject(i));
-                }
-            }
-            if(fromRequestParams.has(WITH_BODY.getKey())) {
-                JSONObject bodyParams = fromRequestParams.getJSONObject(WITH_BODY.getKey());
-                if(bodyParams.has(WITH_BODY_RAWBODY.getKey())) {
-                    rawBody = gatherer.getValueFromResponse(response, bodyParams.getJSONObject(WITH_BODY_RAWBODY.getKey()));
-                }
-                if(bodyParams.has(WITH_BODY_PARAMETERS.getKey())) {
-                    JSONArray bodyParameterParams = bodyParams.getJSONArray(WITH_BODY_PARAMETERS.getKey());
-                    for (int i = 0; i < bodyParameterParams.length(); i++) {
-                        setParamFromResponse(response, bodyParameterParams.getJSONObject(i));
-                    }
-                }
-            }
-        }
-    }
-
-    private void doPostback(JSONObject parameters) throws Exception {
+    private void doPostback() throws Exception {
         if (!postbackUrl.isEmpty()) {
             try {
                 HttpUriRequest postbackRequest = HttpClientFactory.getHttpRequestFor(postbackMethod, postbackUrl);
@@ -187,17 +153,17 @@ public class Postback extends PostServeAction {
         }
     }
 
-    private void setHeaderFromRequest(Request request, JSONObject parameters) throws Exception {
+    private void setHeader(Object wiremockObject, JSONObject parameters) throws Exception {
         String key = "";
         String value = "";
 
         if(parameters.has(KEY_PARAMS.getKey())) {
             JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
-            key = gatherer.getValueFromRequest(request, keyParams);
+            key = gatherer.getValue(wiremockObject, keyParams);
         }
         if(parameters.has(VALUE_PARAMS.getKey())) {
             JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
-            value = gatherer.getValueFromRequest(request, valueParams);
+            value = gatherer.getValue(wiremockObject, valueParams);
         }
 
         if(!key.isEmpty() && !value.isEmpty()) {
@@ -209,7 +175,7 @@ public class Postback extends PostServeAction {
         }
     }
 
-    private void setCookieFromRequest(Request request, JSONObject parameters) throws Exception {
+    private void setCookie(Object wiremockObject, JSONObject parameters) throws Exception {
         String key = "";
         String value = "";
         String domain = "";
@@ -218,23 +184,23 @@ public class Postback extends PostServeAction {
 
         if(parameters.has(KEY_PARAMS.getKey())) {
             JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
-            key = gatherer.getValueFromRequest(request, keyParams);
+            key = gatherer.getValue(wiremockObject, keyParams);
         }
         if(parameters.has(VALUE_PARAMS.getKey())) {
             JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
-            value = gatherer.getValueFromRequest(request, valueParams);
+            value = gatherer.getValue(wiremockObject, valueParams);
         }
         if(parameters.has(DOMAIN_PARAMS.getKey())) {
             JSONObject domainParams = parameters.getJSONObject(DOMAIN_PARAMS.getKey());
-            domain = gatherer.getValueFromRequest(request, domainParams);
+            domain = gatherer.getValue(wiremockObject, domainParams);
         }
         if(parameters.has(PATH_PARAMS.getKey())) {
             JSONObject pathParams = parameters.getJSONObject(PATH_PARAMS.getKey());
-            path = gatherer.getValueFromRequest(request, pathParams);
+            path = gatherer.getValue(wiremockObject, pathParams);
         }
         /*if(parameters.has(EXPIRY_PARAMS.getKey())) {
             JSONObject pathParams = parameters.getJSONObject(EXPIRY_PARAMS.getKey());
-            expiry = gatherer.getValueFromRequest(request, pathParams);
+            expiry = gatherer.getValue(request, pathParams);
         }*/
         if(!key.isEmpty() && !value.isEmpty()) {
             BasicClientCookie cookie = new BasicClientCookie(key, value);
@@ -256,17 +222,17 @@ public class Postback extends PostServeAction {
         }
     }
 
-    private void setParamFromRequest(Request request, JSONObject parameters) throws Exception {
+    private void setParam(Object wiremockObject, JSONObject parameters) throws Exception {
         String key = "";
         String value = "";
 
         if(parameters.has(KEY_PARAMS.getKey())) {
             JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
-            key = gatherer.getValueFromRequest(request, keyParams);
+            key = gatherer.getValue(wiremockObject, keyParams);
         }
         if(parameters.has(VALUE_PARAMS.getKey())) {
             JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
-            value = gatherer.getValueFromRequest(request, valueParams);
+            value = gatherer.getValue(wiremockObject, valueParams);
         }
         if(!key.isEmpty() && !value.isEmpty()) {
             NameValuePair parameter = new BasicNameValuePair(key, value);
@@ -274,95 +240,6 @@ public class Postback extends PostServeAction {
         }
         else {
             throw new Exception("Missing key or value for postback cookie");
-        }
-    }
-
-    private void setHeaderFromResponse(LoggedResponse response, JSONObject parameters) throws Exception {
-        String key = "";
-        String value = "";
-
-        if(parameters.has(KEY_PARAMS.getKey())) {
-            JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
-            key = gatherer.getValueFromResponse(response, keyParams);
-        }
-        if(parameters.has(VALUE_PARAMS.getKey())) {
-            JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
-            value = gatherer.getValueFromResponse(response, valueParams);
-        }
-
-        if(!key.isEmpty() && !value.isEmpty()) {
-            HttpHeader header = new HttpHeader(key, value);
-            postbackHeaders.add(header);
-        }
-        else {
-            throw new Exception("Missing key or value for postback header");
-        }
-    }
-
-    private void setCookieFromResponse(LoggedResponse response, JSONObject parameters) throws Exception {
-        String key = "";
-        String value = "";
-        String domain = "";
-        String path = "";
-        String expiry = "";
-
-        if(parameters.has(KEY_PARAMS.getKey())) {
-            JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
-            key = gatherer.getValueFromResponse(response, keyParams);
-        }
-        if(parameters.has(VALUE_PARAMS.getKey())) {
-            JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
-            value = gatherer.getValueFromResponse(response, valueParams);
-        }
-        if(parameters.has(DOMAIN_PARAMS.getKey())) {
-            JSONObject domainParams = parameters.getJSONObject(DOMAIN_PARAMS.getKey());
-            domain = gatherer.getValueFromResponse(response, domainParams);
-        }
-        if(parameters.has(PATH_PARAMS.getKey())) {
-            JSONObject pathParams = parameters.getJSONObject(PATH_PARAMS.getKey());
-            path = gatherer.getValueFromResponse(response, pathParams);
-        }
-        if(parameters.has(EXPIRY_PARAMS.getKey())) {
-            JSONObject pathParams = parameters.getJSONObject(EXPIRY_PARAMS.getKey());
-            expiry = gatherer.getValueFromResponse(response, pathParams);
-        }
-
-        if(!key.isEmpty() && !value.isEmpty()) {
-            BasicClientCookie cookie = new BasicClientCookie(key, value);
-            if (!domain.isEmpty()) {
-                cookie.setDomain(domain);
-            }
-            if (!path.isEmpty()) {
-                cookie.setPath(path);
-            }
-            if (!expiry.isEmpty()) {
-                cookie.setExpiryDate(new Date());
-            }
-            postbackCookies.addCookie(cookie);
-        }
-        else {
-            throw new Exception("Missing key or value for postback cookie");
-        }
-    }
-
-    private void setParamFromResponse(LoggedResponse response, JSONObject parameters) throws Exception {
-        String key = "";
-        String value = "";
-
-        if(parameters.has(KEY_PARAMS.getKey())) {
-            JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
-            key = gatherer.getValueFromResponse(response, keyParams);
-        }
-        if(parameters.has(VALUE_PARAMS.getKey())) {
-            JSONObject valueParams = parameters.getJSONObject(VALUE_PARAMS.getKey());
-            value = gatherer.getValueFromResponse(response, valueParams);
-        }
-        if(!key.isEmpty() && !value.isEmpty()) {
-            NameValuePair parameter = new BasicNameValuePair(key, value);
-            bodyParameters.add(parameter);
-        }
-        else {
-            throw new Exception("Missing key or value for postback parameter");
         }
     }
 }

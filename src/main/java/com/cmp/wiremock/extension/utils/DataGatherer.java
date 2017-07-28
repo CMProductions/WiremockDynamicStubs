@@ -30,7 +30,7 @@ public class DataGatherer {
 
     private final static Faker faker = new Faker();
 
-    public static String getValueFromRequest(Request request, JSONObject parameter) throws Exception {
+    public static String getValue(Object wiremockObject, JSONObject parameter) throws Exception {
         if(parameter.has(FROM_NEW.getKey())) {
             return parameter.getString(FROM_NEW.getKey());
         }
@@ -38,46 +38,34 @@ public class DataGatherer {
             return getRandomValue(parameter.getString(FROM_RANDOM.getKey()));
         }
         if(parameter.has(FROM_HEADER.getKey())) {
-            return getFromHeader(request.getHeaders(), parameter.getString(FROM_HEADER.getKey()));
+            if(wiremockObject.getClass().isInstance(Request.class)) {
+                return getFromHeader(((Request)wiremockObject).getHeaders(), parameter.getString(FROM_HEADER.getKey()));
+            }
+            if(wiremockObject.getClass().isInstance(LoggedResponse.class)) {
+                return getFromHeader(((LoggedResponse)wiremockObject).getHeaders(), parameter.getString(FROM_HEADER.getKey()));
+            }
         }
         if(parameter.has(FROM_COOKIE.getKey())) {
-            return getFromCookie(request.getCookies(), parameter.getString(FROM_COOKIE.getKey()));
+            return getFromCookie(((Request)wiremockObject).getCookies(), parameter.getString(FROM_COOKIE.getKey()));
         }
         if(parameter.has(COMPOUND_VALUE.getKey())) {
-            return getCompoundDataFromRequest(request, parameter.getJSONArray(COMPOUND_VALUE.getKey()));
+            return getCompoundValue(wiremockObject, parameter.getJSONArray(COMPOUND_VALUE.getKey()));
         }
 
         try {
-            return getValueFromBody(request.getBodyAsString(), parameter);
+            if (wiremockObject.getClass().isInstance(Request.class)) {
+                return getValueFromBody(((Request) wiremockObject).getBodyAsString(), parameter);
+            }
+            if (wiremockObject.getClass().isInstance(LoggedResponse.class)) {
+                return getValueFromBody(((LoggedResponse) wiremockObject).getBody(), parameter);
+            }
+            throw new Exception("No value found");
         } catch (Exception bodyException) {
             try {
-                return getValueFromUrl(request.getUrl(), parameter);
+                return getValueFromUrl(((Request) wiremockObject).getUrl(), parameter);
             } catch (Exception urlException) {
                 throw new Exception("No value found");
             }
-        }
-    }
-
-    public static String getValueFromResponse(LoggedResponse response, JSONObject parameter) throws Exception {
-        if(parameter.has(FROM_NEW.getKey())) {
-            return parameter.getString(FROM_NEW.getKey());
-        }
-        if(parameter.has(FROM_RANDOM.getKey())) {
-            return getRandomValue(parameter.getString(FROM_RANDOM.getKey()));
-        }
-        if(parameter.has(FROM_HEADER.getKey())) {
-            return getFromHeader(response.getHeaders(), parameter.getString(FROM_HEADER.getKey()));
-        }
-        if(parameter.has(COMPOUND_VALUE.getKey())) {
-            return getCompoundDataFromResponse(response, parameter.getJSONArray(COMPOUND_VALUE.getKey()));
-        }
-
-        getValueFromBody(response.getBody(), parameter);
-
-        try {
-            return getValueFromBody(response.getBody(), parameter);
-        } catch (Exception bodyException) {
-            throw new Exception("No value found");
         }
     }
 
@@ -241,18 +229,10 @@ public class DataGatherer {
         return requestCookies.get(cookieKey).toString();
     }
 
-    private static String getCompoundDataFromRequest(Request request, JSONArray parameters) throws Exception {
+    private static String getCompoundValue(Object wiremockObject, JSONArray parameters) throws Exception {
         String compoundValue = "";
         for (int i = 0; i < parameters.length(); i++) {
-            compoundValue += getValueFromRequest(request, parameters.getJSONObject(i));
-        }
-        return compoundValue;
-    }
-
-    private static String getCompoundDataFromResponse(LoggedResponse response, JSONArray parameters) throws Exception {
-        String compoundValue = "";
-        for (int i = 0; i < parameters.length(); i++) {
-            compoundValue += getValueFromResponse(response, parameters.getJSONObject(i));
+            compoundValue += getValue(wiremockObject, parameters.getJSONObject(i));
         }
         return compoundValue;
     }
