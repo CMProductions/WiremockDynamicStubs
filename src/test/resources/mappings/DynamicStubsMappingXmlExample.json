@@ -19,7 +19,7 @@
                                                 },
                                                 {
                                                         "findByXpath": "//Name/Last/text()",
-                                                        "getRandomValue": "STRING_20"
+                                                        "setRandomValue": "STRING_20"
                                                 },
                                                 {
                                                         "findByXpath": "//Name/Last/text()",

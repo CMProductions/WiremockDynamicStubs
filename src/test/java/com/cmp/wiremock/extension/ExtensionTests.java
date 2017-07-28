@@ -68,31 +68,6 @@ public class ExtensionTests {
     }
 
     @Test
-    public void responseDefinitionTransformerTest() {
-        WireMockServer wiremock = new WireMockServer(wireMockConfig()
-                .extensions(new DynamicStubs())
-                .port(8886));
-        wiremock.start();
-
-        wiremock.stubFor(get(urlEqualTo("/fake/endpoint"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/xml")
-                        .withBody("<response>RESPONSE WITH TRANSFORMER</response>")
-                        .withTransformers("DynamicStubs")));
-
-        ValidatableResponse response = given()
-                .spec(new RequestSpecBuilder().build())
-                .when()
-                .get("http://localhost:8886" + "/fake/endpoint")
-                .then();
-
-        System.out.println("RESPONSE: " + response.extract().body().asString());
-
-        wiremock.stop();
-    }
-
-    @Test
     public void responseDefinitionTransformerFromJsonMappingTest() {
         WireMockServer wiremock = new WireMockServer(wireMockConfig()
                 .extensions(new DynamicStubs())

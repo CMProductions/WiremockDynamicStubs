@@ -28,7 +28,7 @@
                   "setFixedValue":"fake-id-"
                 },
                 {
-                  "getRandomValue":"TIMESTAMP_MILIS"
+                  "setRandomValue":"TIMESTAMP_MILIS"
                 }
               ]
             }

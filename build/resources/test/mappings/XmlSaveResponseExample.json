@@ -11,16 +11,16 @@
                 ],
                 "transformerParameters": {
                         "dynamicStubsParameters": {
-                                "transformXmlNode": {
-                                        "fromRequest":[
+                                "transformXmlBody": {
+                                        "gatherDataFromRequest":[
                                                 {
-                                                        "fillByXpath": "//Name/First/text()",
-                                                        "getNewValue": "ChangedName"
+                                                        "findByXpath": "//Name/First/text()",
+                                                        "setFixedValue": "ChangedName"
                                                 }
                                         ]
                                 },
                                 "saveResponseWithTag": {
-                                        "getNewValue": "example"
+                                        "setFixedValue": "example"
                                 }
                         }
                 },
