@@ -45,12 +45,12 @@ public class ExtensionTests {
     @Test
     public void postServeActionTest() {
         WireMockServer wiremock = new WireMockServer(wireMockConfig()
-                .extensions(new Postback())
+                .extensions(new Postbacks())
                 .port(8886));
         wiremock.start();
 
         wiremock.stubFor(get(urlEqualTo("/fake/endpoint"))
-                .withPostServeAction("Postback", new JSONObject())
+                .withPostServeAction("Postbacks", new JSONObject())
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/xml")
@@ -201,7 +201,7 @@ public class ExtensionTests {
     @Test
     public void checkPostbackExtensionWorks() {
         WireMockServer wiremock = new WireMockServer(wireMockConfig()
-                .extensions(new Postback(), new DynamicStubs())
+                .extensions(new Postbacks(), new DynamicStubs())
                 .port(8886));
         wiremock.start();
         wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
@@ -210,6 +210,25 @@ public class ExtensionTests {
                 .when()
                 .get("http://localhost:8886" + "/postback")
                 .then();
+
+        wiremock.stop();
+    }
+
+    @Test
+    public void checkNothingIsBrokenAfterPostbackDevelopment() {
+        WireMockServer wiremock = new WireMockServer(wireMockConfig()
+                .extensions(new DynamicStubs())
+                .port(8886));
+        wiremock.start();
+        wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
+        RestAssured.useRelaxedHTTPSValidation();
+        ValidatableResponse response = given().spec(new RequestSpecBuilder().build())
+                .body("<Records><Record><DataSource>Criminal Court</DataSource><OffenderId>FAKE-OFFENDER-ID-0000000001</OffenderId><Name><First>sdfsdfsdf</First><Middle></Middle><Last>sdfsdfsdf</Last></Name></Record></Records>")
+                .when()
+                .post("http://localhost:8886" + "/complexmapping")
+                .then();
+
+        System.out.println("RESPONSE: " + response.extract().body().asString());
 
         wiremock.stop();
     }

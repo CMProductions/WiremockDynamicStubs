@@ -9,7 +9,7 @@
     "status": 200
   },
   "postServeActions": {
-    "Postback": {
+    "Postbacks": {
       "doPostbacks": [
         {
           "fromRequest": {

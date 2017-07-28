@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -39,12 +40,7 @@ public class DataGatherer {
             return getRandomValue(parameter.getString(FROM_RANDOM.getKey()));
         }
         if(parameter.has(FROM_HEADER.getKey())) {
-            if(LoggedRequest.class.isInstance(wiremockObject)) {
-                return getFromHeader(((LoggedRequest)wiremockObject).getHeaders(), parameter.getString(FROM_HEADER.getKey()));
-            }
-            if(LoggedResponse.class.isInstance(wiremockObject)) {
-                return getFromHeader(((LoggedResponse)wiremockObject).getHeaders(), parameter.getString(FROM_HEADER.getKey()));
-            }
+            return getFromHeader(getHeaders(wiremockObject), parameter.getString(FROM_HEADER.getKey()));
         }
         if(parameter.has(FROM_COOKIE.getKey())) {
             return getFromCookie(((Request)wiremockObject).getCookies(), parameter.getString(FROM_COOKIE.getKey()));
@@ -54,18 +50,12 @@ public class DataGatherer {
         }
 
         try {
-            if (LoggedRequest.class.isInstance(wiremockObject)) {
-                return getValueFromBody(((LoggedRequest) wiremockObject).getBodyAsString(), parameter);
-            }
-            if (LoggedResponse.class.isInstance(wiremockObject)) {
-                return getValueFromBody(((LoggedResponse) wiremockObject).getBody(), parameter);
-            }
-            throw new Exception("No value found");
+            return getValueFromBody(getBody(wiremockObject), parameter);
         } catch (Exception bodyException) {
             try {
-                return getValueFromUrl(((LoggedRequest) wiremockObject).getUrl(), parameter);
+                return getValueFromUrl(getUrl(wiremockObject), parameter);
             } catch (Exception urlException) {
-                throw new Exception("No value found");
+                throw new Exception("No value found for: " + parameter.toString());
             }
         }
     }
@@ -153,7 +143,7 @@ public class DataGatherer {
             return faker.address().fullAddress();
         }
 
-        throw new Exception("Can not generate data of the specified type");
+        throw new Exception("Can not generate data of the specified type: " + randomType);
     }
 
     private static int getMaxNumberChars(String randomType) throws Exception {
@@ -252,5 +242,41 @@ public class DataGatherer {
 
     public static NodeList getMatchingNodesByNodeName(Document document, String nodeName) throws Exception {
         return getMatchingNodesByXpath(document, "//" + nodeName + "/text()");
+    }
+
+    private static HttpHeaders getHeaders(Object wiremockObject) throws Exception {
+        if(WireMockHttpServletRequestAdapter.class.isInstance(wiremockObject)) {
+            return ((WireMockHttpServletRequestAdapter)wiremockObject).getHeaders();
+        }
+        if(LoggedRequest.class.isInstance(wiremockObject)) {
+            return ((LoggedRequest)wiremockObject).getHeaders();
+        }
+        if(LoggedResponse.class.isInstance(wiremockObject)) {
+            return ((LoggedResponse)wiremockObject).getHeaders();
+        }
+        throw new Exception("Unable to get headers for provided class: " + wiremockObject.getClass());
+    }
+
+    private static String getBody(Object wiremockObject) throws Exception {
+        if(WireMockHttpServletRequestAdapter.class.isInstance(wiremockObject)) {
+            return ((WireMockHttpServletRequestAdapter)wiremockObject).getBodyAsString();
+        }
+        if (LoggedRequest.class.isInstance(wiremockObject)) {
+            return ((LoggedRequest) wiremockObject).getBodyAsString();
+        }
+        if (LoggedResponse.class.isInstance(wiremockObject)) {
+            return ((LoggedResponse) wiremockObject).getBody();
+        }
+        throw new Exception("Unable to get body for provided class: " + wiremockObject.getClass());
+    }
+
+    private static String getUrl(Object wiremockObject) throws Exception {
+        if(WireMockHttpServletRequestAdapter.class.isInstance(wiremockObject)) {
+            return ((WireMockHttpServletRequestAdapter)wiremockObject).getUrl();
+        }
+        if (LoggedRequest.class.isInstance(wiremockObject)) {
+            return ((LoggedRequest) wiremockObject).getUrl();
+        }
+        throw new Exception("Unable to get body for provided class: " + wiremockObject.getClass());
     }
 }

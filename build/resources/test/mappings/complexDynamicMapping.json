@@ -1,0 +1,44 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "url": "/complexmapping"
+  },
+  "response":{
+    "status":200,
+    "transformers":[
+      "DynamicStubs"
+    ],
+    "transformerParameters":{
+      "dynamicStubsParameters":{
+        "transformXmlNode":{
+          "fromRequest":[
+            {
+              "fillByXpath":"//Records/Record[1]/Names/Name/First/text()",
+              "getFromBodyXpath":"//Name/First/text()"
+            },
+            {
+              "fillByXpath":"//Records/Record[1]/Names/Name/Last/text()",
+              "getFromBodyXpath":"//Name/Last/text()"
+            },
+            {
+              "fillByXpath":"//Records/Record[1]/UniqueId/text()",
+              "compoundValue":[
+                {
+                  "getNewValue":"fake-id-"
+                },
+                {
+                  "getRandomValue":"TIMESTAMP_MILIS"
+                }
+              ]
+            }
+          ]
+        },
+        "saveResponseWithTag": {
+          "getFromBodyXpath":"//Records/Record[1]/UniqueId/text()"
+        }
+      }
+    },
+    "bodyFileName":"previewLNTemplate.xml"
+  }
+}
