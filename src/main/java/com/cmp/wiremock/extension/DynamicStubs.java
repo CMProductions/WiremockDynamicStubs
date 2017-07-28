@@ -40,10 +40,6 @@ public class DynamicStubs extends ResponseTransformer {
 
     @Override
     public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
-        System.out.println("REQUEST HEADERS: " + request.getHeaders().toString());
-        System.out.println("REQUEST COOKIES: " + request.getCookies().size());
-        System.out.println("REQUEST BODY: " + request.getBodyAsString());
-
         Response transformedResponse = response;
         Parameters dynamicStubsParameters = Parameters.of(parameters.getOrDefault(EXTENSION_PARAMS_NAME, null));
         String bodyTemplate = getBodyFromResponse(response);

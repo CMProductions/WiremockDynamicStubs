@@ -23,18 +23,20 @@ import static com.google.common.base.Charsets.UTF_8;
  */
 public class DataParser {
 
+    public static final String defaultCharset = UTF_8.toString();
+
     private String objectAsString;
 
     private DataParser(String object) {
         this.objectAsString = object;
     }
 
-    public static DataParser from(BinaryFile binaryFile) {
+    public static DataParser from(BinaryFile binaryFile) throws Exception {
         return from(binaryFile.readContents());
     }
 
-    public static DataParser from(byte[] byteArray) {
-        String parsedFile = new String(byteArray, UTF_8);
+    public static DataParser from(byte[] byteArray) throws Exception {
+        String parsedFile = new String(byteArray, defaultCharset);
         return new DataParser(parsedFile);
     }
 

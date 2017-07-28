@@ -84,7 +84,7 @@
                 }
               ],
               "withRawBody": {
-                "getNewValue": "This is a body, you can put here whatever"
+                "getNewValue": "This is a body you can put here whatever"
               }
             }
           }

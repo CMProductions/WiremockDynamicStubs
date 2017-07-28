@@ -35,14 +35,13 @@ import static com.cmp.wiremock.extension.enums.DSParamType.*;
  */
 public class Postback extends PostServeAction {
 
-    private static final String defaultCharset = "UTF-8";
     private static final CloseableHttpClient httpClient = HttpClientFactory.createClient();
 
     private String postbackUrl = "";
     private RequestMethod postbackMethod = RequestMethod.GET;
     private List<HttpHeader> postbackHeaders = new ArrayList<>();
     private CookieStore postbackCookies = new BasicCookieStore();
-    private ArrayList<NameValuePair> bodyParameters;
+    private List<NameValuePair> bodyParameters = new ArrayList<>();
     private String rawBody = "";
 
     private DataGatherer gatherer = new DataGatherer();
@@ -172,10 +171,10 @@ public class Postback extends PostServeAction {
                 postbackContext.setAttribute(HttpClientContext.COOKIE_STORE, postbackCookies);
 
                 if(postbackMethod != RequestMethod.GET && !bodyParameters.isEmpty()) {
-                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(new UrlEncodedFormEntity(bodyParameters, defaultCharset));
+                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(new UrlEncodedFormEntity(bodyParameters, DataParser.defaultCharset));
                 }
                 else if(postbackMethod != RequestMethod.GET && !rawBody.isEmpty()) {
-                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(new StringEntity(rawBody, defaultCharset));
+                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(new StringEntity(rawBody, DataParser.defaultCharset));
                 }
 
                 httpClient.execute(postbackRequest, postbackContext);
