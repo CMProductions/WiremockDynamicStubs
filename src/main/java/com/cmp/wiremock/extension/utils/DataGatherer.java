@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONArray;
@@ -38,10 +39,10 @@ public class DataGatherer {
             return getRandomValue(parameter.getString(FROM_RANDOM.getKey()));
         }
         if(parameter.has(FROM_HEADER.getKey())) {
-            if(wiremockObject.getClass().isInstance(Request.class)) {
-                return getFromHeader(((Request)wiremockObject).getHeaders(), parameter.getString(FROM_HEADER.getKey()));
+            if(LoggedRequest.class.isInstance(wiremockObject)) {
+                return getFromHeader(((LoggedRequest)wiremockObject).getHeaders(), parameter.getString(FROM_HEADER.getKey()));
             }
-            if(wiremockObject.getClass().isInstance(LoggedResponse.class)) {
+            if(LoggedResponse.class.isInstance(wiremockObject)) {
                 return getFromHeader(((LoggedResponse)wiremockObject).getHeaders(), parameter.getString(FROM_HEADER.getKey()));
             }
         }
@@ -53,16 +54,16 @@ public class DataGatherer {
         }
 
         try {
-            if (wiremockObject.getClass().isInstance(Request.class)) {
-                return getValueFromBody(((Request) wiremockObject).getBodyAsString(), parameter);
+            if (LoggedRequest.class.isInstance(wiremockObject)) {
+                return getValueFromBody(((LoggedRequest) wiremockObject).getBodyAsString(), parameter);
             }
-            if (wiremockObject.getClass().isInstance(LoggedResponse.class)) {
+            if (LoggedResponse.class.isInstance(wiremockObject)) {
                 return getValueFromBody(((LoggedResponse) wiremockObject).getBody(), parameter);
             }
             throw new Exception("No value found");
         } catch (Exception bodyException) {
             try {
-                return getValueFromUrl(((Request) wiremockObject).getUrl(), parameter);
+                return getValueFromUrl(((LoggedRequest) wiremockObject).getUrl(), parameter);
             } catch (Exception urlException) {
                 throw new Exception("No value found");
             }

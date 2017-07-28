@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
@@ -51,7 +52,7 @@ public class Postback extends PostServeAction {
 
     @Override
     public void doAction(ServeEvent serveEvent, Admin admin, Parameters parameters) {
-        Request servedRequest = serveEvent.getRequest();
+        LoggedRequest servedRequest = serveEvent.getRequest();
         LoggedResponse servedResponse = serveEvent.getResponse();
 
         try {
@@ -82,11 +83,11 @@ public class Postback extends PostServeAction {
     }
 
     private void gatherData(Object wiremockObject, JSONObject parameters) throws Exception {
-        if (wiremockObject.getClass().isInstance(Request.class) && parameters.has(FROM_REQUEST.getKey())) {
+        if (LoggedRequest.class.isInstance(wiremockObject) && parameters.has(FROM_REQUEST.getKey())) {
             JSONObject fromRequestParams = parameters.getJSONObject(FROM_REQUEST.getKey());
             gatherDataFromSpecificSource(wiremockObject, fromRequestParams);
         }
-        if (wiremockObject.getClass().isInstance(LoggedResponse.class) && parameters.has(FROM_RESPONSE.getKey())) {
+        if (LoggedResponse.class.isInstance(wiremockObject) && parameters.has(FROM_RESPONSE.getKey())) {
             JSONObject fromResponseParams = parameters.getJSONObject(FROM_RESPONSE.getKey());
             gatherDataFromSpecificSource(wiremockObject, fromResponseParams);
         }
