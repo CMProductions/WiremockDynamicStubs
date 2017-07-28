@@ -11,15 +11,15 @@
                 ],
                 "transformerParameters": {
                         "dynamicStubsParameters": {
-                                "transformJsonNode": {
-                                        "fromRequest": [
+                                "transformJsonBody": {
+                                        "gatherDataFromRequest": [
                                                 {
-                                                        "fillByJsonPath": "$.Records.Record.Name.First",
-                                                        "getNewValue": "LET'S SEE WHAT HAPPENS"
+                                                        "findByJsonPath": "$.Records.Record.Name.First",
+                                                        "setFixedValue": "LET'S SEE WHAT HAPPENS"
                                                 },
                                                 {
-                                                        "fillByJsonKey": "Others",
-                                                        "getNewValue": "LET'S SEE WHAT HAPPENS"
+                                                        "findByJsonKey": "Others",
+                                                        "setFixedValue": "LET'S SEE WHAT HAPPENS"
                                                 }
                                         ]
                                 }

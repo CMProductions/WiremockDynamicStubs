@@ -12,11 +12,11 @@
     "transformerParameters": {
       "dynamicStubsParameters": {
         "transformXmlNode": {
-          "fromSavedResponse": [
+          "gatherDataFromSavedResponse": [
           ]
         },
         "deleteResponseWithTag": {
-          "getNewValue": "example"
+          "setFixedValue": "example"
         }
       }
     },

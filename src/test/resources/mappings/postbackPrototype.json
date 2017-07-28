@@ -12,55 +12,55 @@
     "Postbacks": {
       "doPostbacks": [
         {
-          "fromRequest": {
+          "gatherDataFromRequest": {
             "withUrl": {
-              "getNewValue": "http://localhost:8886/holi"
+              "setFixedValue": "http://localhost:8886/holi"
             },
             "withMethod": {
-              "getNewValue": "POST"
+              "setFixedValue": "POST"
             },
             "withHeaders": [
               {
                 "key": {
-                  "getNewValue": "testheader"
+                  "setFixedValue": "testheader"
                 },
                 "value": {
-                  "getNewValue": "testheader"
+                  "setFixedValue": "testheader"
                 }
               },
               {
                 "key": {
-                  "getNewValue": "testheader2"
+                  "setFixedValue": "testheader2"
                 },
                 "value": {
-                  "getNewValue": "testheader2"
+                  "setFixedValue": "testheader2"
                 }
               }
             ],
             "withCookies": [
               {
                 "key": {
-                  "getNewValue": "testcookie"
+                  "setFixedValue": "testcookie"
                 },
                 "value": {
-                  "getNewValue": "testcookie"
+                  "setFixedValue": "testcookie"
                 },
                 "domain": {
-                  "getNewValue": "seekverify.com"
+                  "setFixedValue": "seekverify.com"
                 },
                 "path": {
-                  "getNewValue": "/"
+                  "setFixedValue": "/"
                 },
                 "expiry": {
-                  "getNewValue": "2018-03-16"
+                  "setFixedValue": "2018-11-01"
                 }
               },
               {
                 "key": {
-                  "getNewValue": "testcookie2"
+                  "setFixedValue": "testcookie2"
                 },
                 "value": {
-                  "getNewValue": "testcookie2"
+                  "setFixedValue": "testcookie2"
                 }
               }
             ],
@@ -68,23 +68,23 @@
               "withParameters": [
                 {
                   "key": {
-                    "getNewValue": "testparam"
+                    "setFixedValue": "testparam"
                   },
                   "value": {
-                    "getNewValue": "testparam"
+                    "setFixedValue": "testparam"
                   }
                 },
                 {
                   "key": {
-                    "getNewValue": "testparam2"
+                    "setFixedValue": "testparam2"
                   },
                   "value": {
-                    "getNewValue": "testparam2"
+                    "setFixedValue": "testparam2"
                   }
                 }
               ],
               "withRawBody": {
-                "getNewValue": "This is a body you can put here whatever"
+                "setFixedValue": "This is a body you can put here whatever"
               }
             }
           }
@@ -92,7 +92,7 @@
       ]
     },
     "Another": {
-      "getNewValue": "testparam2"
+      "setFixedValue": "testparam2"
     }
   }
 }

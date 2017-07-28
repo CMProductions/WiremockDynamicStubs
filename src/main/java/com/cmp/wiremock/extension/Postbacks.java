@@ -25,6 +25,7 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -200,7 +201,8 @@ public class Postbacks extends PostServeAction {
             path = gatherer.getValue(wiremockObject, pathParams);
         }
         if(parameters.has(EXPIRY_PARAMS.getKey())) {
-            //TODO: Implement this
+            JSONObject expiryParams = parameters.getJSONObject(EXPIRY_PARAMS.getKey());
+            expiry = gatherer.getValue(wiremockObject, expiryParams);
         }
         if(!key.isEmpty() && !value.isEmpty()) {
             BasicClientCookie cookie = new BasicClientCookie(key, value);
@@ -211,7 +213,7 @@ public class Postbacks extends PostServeAction {
                 cookie.setPath(path);
             }
             if (!expiry.isEmpty()) {
-                //TODO: Implement this
+                cookie.setExpiryDate(Date.valueOf(expiry));
             }
             postbackCookies.addCookie(cookie);
         }

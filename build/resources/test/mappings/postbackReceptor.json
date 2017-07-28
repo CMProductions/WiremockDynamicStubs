@@ -16,7 +16,7 @@
           ]
         },
         "deleteResponseWithTag": {
-          "getNewValue": "example"
+          "setFixedValue": "example"
         }
       }
     },

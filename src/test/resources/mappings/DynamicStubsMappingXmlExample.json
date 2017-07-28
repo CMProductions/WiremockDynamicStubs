@@ -11,32 +11,32 @@
                 ],
                 "transformerParameters": {
                         "dynamicStubsParameters": {
-                                "transformXmlNode": {
-                                        "fromRequest": [
+                                "transformXmlBody": {
+                                        "gatherDataFromRequest": [
                                                 {
-                                                        "fillByXpath": "//Name/First",
-                                                        "getNewValue": "New Name"
+                                                        "findByXpath": "//Name/First",
+                                                        "setFixedValue": "New Name"
                                                 },
                                                 {
-                                                        "fillByXpath": "//Name/Last/text()",
+                                                        "findByXpath": "//Name/Last/text()",
                                                         "getRandomValue": "STRING_20"
                                                 },
                                                 {
-                                                        "fillByXpath": "//Name/Last/text()",
-                                                        "getFromQueryParameter": "name"
+                                                        "findByXpath": "//Name/Last/text()",
+                                                        "gatherFromQueryParameter": "name"
                                                 },
                                                 {
-                                                        "fillByXpath": "//Records/Record/Name/First/text()",
-                                                        "getFromBodyXpath": "//OffenderId/text()"
+                                                        "findByXpath": "//Records/Record/Name/First/text()",
+                                                        "gatherFromBodyByXpath": "//OffenderId/text()"
                                                 },
                                                 {
-                                                        "fillByNodeName": "First",
+                                                        "findByNodeName": "First",
                                                         "compoundValue": [
                                                                 {
-                                                                        "getFromBodyXpath": "//OffenderId/text()"
+                                                                        "gatherFromBodyByXpath": "//OffenderId/text()"
                                                                 },
                                                                 {
-                                                                        "getRandomValue": "RANDOM_STRING"
+                                                                        "setRandomValue": "RANDOM_STRING"
                                                                 }
                                                         ]
                                                 }
