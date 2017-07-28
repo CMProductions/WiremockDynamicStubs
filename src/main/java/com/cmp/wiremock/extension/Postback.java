@@ -181,7 +181,7 @@ public class Postback extends PostServeAction {
         String value = "";
         String domain = "";
         String path = "";
-        //String expiry = "";
+        String expiry = "";
 
         if(parameters.has(KEY_PARAMS.getKey())) {
             JSONObject keyParams = parameters.getJSONObject(KEY_PARAMS.getKey());
@@ -199,10 +199,9 @@ public class Postback extends PostServeAction {
             JSONObject pathParams = parameters.getJSONObject(PATH_PARAMS.getKey());
             path = gatherer.getValue(wiremockObject, pathParams);
         }
-        /*if(parameters.has(EXPIRY_PARAMS.getKey())) {
-            JSONObject pathParams = parameters.getJSONObject(EXPIRY_PARAMS.getKey());
-            expiry = gatherer.getValue(request, pathParams);
-        }*/
+        if(parameters.has(EXPIRY_PARAMS.getKey())) {
+            //TODO: Implement this
+        }
         if(!key.isEmpty() && !value.isEmpty()) {
             BasicClientCookie cookie = new BasicClientCookie(key, value);
             if (!domain.isEmpty()) {
@@ -211,9 +210,9 @@ public class Postback extends PostServeAction {
             if (!path.isEmpty()) {
                 cookie.setPath(path);
             }
-            /*if (!expiry.isEmpty()) {
-                cookie.setExpiryDate(new Date());
-            }*/
+            if (!expiry.isEmpty()) {
+                //TODO: Implement this
+            }
             postbackCookies.addCookie(cookie);
         }
         else {
