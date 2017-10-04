@@ -178,9 +178,9 @@ public class DataGatherer {
         URL url = new URL(urlString);
         String baseUrl = "";
 
-        baseUrl += url.getProtocol() + url.getHost();
+        baseUrl += url.getProtocol() + "://" + url.getHost();
         if (url.getPort() != -1) {
-            baseUrl += String.valueOf(url.getPort());
+            baseUrl += ":" + String.valueOf(url.getPort());
         }
         return baseUrl;
     }
@@ -272,10 +272,10 @@ public class DataGatherer {
 
     private static String getUrl(Object wiremockObject) throws Exception {
         if(WireMockHttpServletRequestAdapter.class.isInstance(wiremockObject)) {
-            return ((WireMockHttpServletRequestAdapter)wiremockObject).getUrl();
+            return ((WireMockHttpServletRequestAdapter)wiremockObject).getAbsoluteUrl();
         }
         if (LoggedRequest.class.isInstance(wiremockObject)) {
-            return ((LoggedRequest) wiremockObject).getUrl();
+            return ((LoggedRequest) wiremockObject).getAbsoluteUrl();
         }
         throw new Exception("Unable to get body for provided class: " + wiremockObject.getClass());
     }
