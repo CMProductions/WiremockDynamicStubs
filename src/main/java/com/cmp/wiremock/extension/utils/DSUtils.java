@@ -1,5 +1,6 @@
 package com.cmp.wiremock.extension.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,27 +30,25 @@ public class DSUtils {
 
     public static JSONArray parseWiremockParametersToJsonArray(Parameters parameters, String paramKey) {
         Object specificParameters = parameters.getOrDefault(paramKey, null);
-        JSONArray formattedParameters = new JSONArray();
+        String jsonString = "";
 
         if(specificParameters != null) {
-            String jsonString = specificParameters.toString()
-                    .replaceAll("(?! )(?!\\[)(?!])(?<=[={}, ])([^{},]+?)(?=[{}=,])", "\"$1\"")
-                    .replaceAll("=", ":");
-
-            formattedParameters = new JSONArray(jsonString);
+            try {
+                jsonString = new ObjectMapper().writeValueAsString(specificParameters);
+            } catch (Exception ex) {
+                System.err.println("Error trying to parse parameters fo JSONArray: " + ex.getMessage());
+            }
         }
-
-        return formattedParameters;
+        return new JSONArray(jsonString);
     }
 
     public static JSONObject parseWiremockParametersToJsonObject(Parameters parameters) {
         String jsonString = "";
-        if(parameters != null) {
-            jsonString = parameters.toString()
-                    .replaceAll("(?! )(?!\\[)(?!])(?<=[={}, ])([^{},]+?)(?=[{}=,])", "\"$1\"")
-                    .replaceAll("=", ":");
+        try {
+            jsonString = new ObjectMapper().writeValueAsString(parameters);
+        } catch (Exception ex) {
+            System.err.println("Error trying to parse parameters fo JSONObject: " + ex.getMessage());
         }
-
         return new JSONObject(jsonString);
     }
 }
