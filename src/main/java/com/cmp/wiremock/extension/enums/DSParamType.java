@@ -15,6 +15,7 @@ public enum DSParamType {
     //Template type params
     XML_PARAMS("transformXmlBody"),
     JSON_PARAMS("transformJsonBody"),
+    URL_ENCODED_PARAMS("transformJsonBody"),
     PLAIN_TEXT_PARAMS("transformPlainTextBody"),
 
     //Set value params
@@ -37,6 +38,7 @@ public enum DSParamType {
     FROM_BODY_JSON_PATH("gatherFromBodyByJsonPath"),
     FROM_BODY_JSON_KEY("gatherFromBodyByJsonKey"),
     FROM_BODY_XML("gatherFromBodyByXpath"),
+    FROM_BODY_URL_PARAMETER("gatherFromBodyByUrlParameter"),
     FROM_BODY_PLAINTEXT("gatherFromBodyByRegex"),
     FROM_URL_QUERY_PARAMETER("gatherFromQueryParameter"),
     FROM_URL_ASPLAINTEXT("gatherFromUrlByRegex"),

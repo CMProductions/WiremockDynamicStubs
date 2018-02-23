@@ -70,6 +70,9 @@ public class DataGatherer {
         if(parameter.has(FROM_BODY_XML.getKey())) {
             return getFromXml(bodyString, parameter.getString(FROM_BODY_XML.getKey()));
         }
+        if(parameter.has(FROM_BODY_URL_PARAMETER.getKey())) {
+            return getFromUrlEncoded(bodyString, parameter.getString(FROM_BODY_URL_PARAMETER.getKey()));
+        }
         if(parameter.has(FROM_BODY_PLAINTEXT.getKey())) {
             return getFromPlainText(bodyString, parameter.getString(FROM_BODY_XML.getKey()));
         }
@@ -170,7 +173,7 @@ public class DataGatherer {
 
     private static String getFromQuery(String urlString, String queryParameter) throws Exception {
         Map<String, String> queryParameters;
-        queryParameters = DSUtils.splitQuery(urlString);
+        queryParameters = DSUtils.splitUrl(urlString);
         return queryParameters.get(queryParameter);
     }
 
@@ -201,6 +204,16 @@ public class DataGatherer {
         return getMatchingNodesByXpath(xmlRequest, xpath)
                 .item(0)
                 .getNodeValue();
+    }
+
+    private static String getFromUrlEncoded(String requestBody, String parameterKey) throws Exception {
+        Map<String, String> params = DSUtils.splitQuery(requestBody);
+        for (Map.Entry<String, String> pair : params.entrySet()) {
+            if (pair.getKey().equals(parameterKey)) {
+                return pair.getValue();
+            }
+        }
+        throw new Exception("No match found");
     }
 
     private static String getFromPlainText(String string, String regex) throws Exception {

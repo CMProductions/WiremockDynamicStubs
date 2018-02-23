@@ -14,11 +14,19 @@ import java.util.Map;
  */
 public class DSUtils {
 
-    public static Map<String, String> splitQuery(String url) throws Exception {
+    public static Map<String, String> splitUrl(String url) throws Exception {
         Map<String, String> queryMap = new LinkedHashMap<String, String>();
 
         int queryIndex = url.indexOf('?');
-        String[] pairs = url.substring(queryIndex + 1)
+        String urlEncodedParams = url.substring(queryIndex + 1);
+
+        return splitQuery(urlEncodedParams);
+    }
+
+    public static Map<String, String> splitQuery(String urlEncodedParams) throws Exception {
+        Map<String, String> queryMap = new LinkedHashMap<String, String>();
+
+        String[] pairs = urlEncodedParams
                 .split("&");
 
         for (String pair : pairs) {

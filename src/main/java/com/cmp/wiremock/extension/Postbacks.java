@@ -67,7 +67,6 @@ public class Postbacks extends PostServeAction {
                     doPostback();
                 }
             }
-
         } catch (Exception e) {
             System.err.println("Unable to perfom postback: " + e.getMessage());
             e.printStackTrace();

@@ -207,4 +207,22 @@ public class ExtensionTests {
 
         wiremock.stop();
     }
+
+    @Test
+    public void checkPostbackExtensionWorksWithUrlEncodedBody() {
+        WireMockServer wiremock = new WireMockServer(wireMockConfig()
+                .extensions(new Postbacks(), new DynamicStubs())
+                .port(8886));
+        wiremock.start();
+        wiremock.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/mappings")));
+        RestAssured.useRelaxedHTTPSValidation();
+        given().spec(new RequestSpecBuilder().build())
+                .when()
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .body("sv_user_id=807779&email=luna.bulnes%2Bnew%40teamcmp.com&affiliate_id=109407&subid=default&tour_id=25247")
+                .post("http://localhost:8886" + "/urlEncoded")
+                .then();
+
+        wiremock.stop();
+    }
 }
