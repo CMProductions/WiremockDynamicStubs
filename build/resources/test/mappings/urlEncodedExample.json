@@ -1,0 +1,36 @@
+{
+  "priority": 10,
+  "request": {
+    "url": "/urlEncoded",
+    "method": "POST"
+  },
+  "response": {
+    "status":200
+  },
+  "postServeActions": {
+    "Postbacks": {
+      "doPostbacks": [
+        {
+          "gatherDataFromRequest": {
+            "withUrl": {
+              "setFixedValue": "http://localhost:8886/holi"
+            },
+            "withMethod": {
+              "setFixedValue": "POST"
+            },
+            "withHeaders": [
+              {
+                "key": {
+                  "setFixedValue": "user_id"
+                },
+                "value": {
+                  "gatherFromBodyByUrlParameter": "sv_user_id"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
