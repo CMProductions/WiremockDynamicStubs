@@ -8,8 +8,18 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.response.ValidatableResponse;
 import net.minidev.json.JSONObject;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -224,5 +234,49 @@ public class ExtensionTests {
                 .then();
 
         wiremock.stop();
+    }
+
+    @Test
+    public void listToJSON() {
+        List<NameValuePair> list = new ArrayList<>();
+        NameValuePair pair = new BasicNameValuePair("first", "1");
+        list.add(pair);
+        pair = new BasicNameValuePair("second", "2");
+        list.add(pair);
+
+        org.json.JSONObject jsonParams = new org.json.JSONObject();
+        list.forEach(param -> jsonParams.put(param.getName(), param.getValue()));
+
+        System.out.println("JSON: " + jsonParams.toString());
+    }
+
+    @Test
+    public void sendPostWithBody() {
+        try {
+            CloseableHttpClient client = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost("http://dev.seekverify.com/ss/upgrade");
+
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("sv_user_id", "807780"));
+            params.add(new BasicNameValuePair("join_length", "30"));
+            params.add(new BasicNameValuePair("trial_type", "person"));
+            params.add(new BasicNameValuePair("rebillAmount", "35.95"));
+            params.add(new BasicNameValuePair("biller_id", "5"));
+            params.add(new BasicNameValuePair("expireDate", "2099-11-28 14:31:49"));
+            params.add(new BasicNameValuePair("is_trial_member", "1"));
+            httpPost.setEntity(new UrlEncodedFormEntity(params));
+
+/*
+            String json = "{\"sv_user_id\":\"807780\",\"join_length\":\"30\",\"trial_type\":\"person\",\"rebillAmount\":\"35.95\",\"biller_id\":\"5\",\"expireDate\":\"2099-11-28 14:31:49\",\"is_trial_member\":\"1\"}";
+            StringEntity entity = new StringEntity(json);
+            httpPost.setEntity(entity);
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setHeader("Content-type", "application/json");
+*/
+            CloseableHttpResponse response = client.execute(httpPost);
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

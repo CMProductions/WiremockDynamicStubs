@@ -6,13 +6,15 @@ import com.cmp.wiremock.extension.utils.DataParser;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.LoggedResponse;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
@@ -43,6 +45,7 @@ public class Postbacks extends PostServeAction {
     private List<HttpHeader> postbackHeaders = new ArrayList<>();
     private CookieStore postbackCookies = new BasicCookieStore();
     private List<NameValuePair> bodyParameters = new ArrayList<>();
+    private String contentType = "";
     private String rawBody = "";
 
     private DataGatherer gatherer = new DataGatherer();
@@ -127,30 +130,43 @@ public class Postbacks extends PostServeAction {
                 }
             }
         }
+        if(parameters.has(WITH_CONTENT_TYPE.getKey())) {
+            JSONObject contentTypeParams = parameters.getJSONObject(WITH_CONTENT_TYPE.getKey());
+            contentType = gatherer.getValue(wiremockObject, contentTypeParams);
+        }
     }
 
     private void doPostback() throws Exception {
         if (!postbackUrl.isEmpty()) {
             try {
                 HttpUriRequest postbackRequest = HttpClientFactory.getHttpRequestFor(postbackMethod, postbackUrl);
-                postbackHeaders.forEach(header -> postbackRequest.addHeader(header.key(), header.firstValue()));
+                postbackHeaders.forEach(header -> postbackRequest.setHeader(header.key(), header.firstValue()));
                 HttpContext postbackContext = new BasicHttpContext();
                 postbackContext.setAttribute(HttpClientContext.COOKIE_STORE, postbackCookies);
 
-                if(postbackMethod != RequestMethod.GET && !bodyParameters.isEmpty()) {
-                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(new UrlEncodedFormEntity(bodyParameters, DataParser.defaultCharset));
-                }
-                else if(postbackMethod != RequestMethod.GET && !rawBody.isEmpty()) {
-                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(new StringEntity(rawBody, DataParser.defaultCharset));
+                if (!contentType.isEmpty()) {
+                    postbackRequest.setHeader("Accept", contentType);
+                    postbackRequest.setHeader("Content-type", contentType);
+                    StringEntity stringParams = null;
+                    if (!bodyParameters.isEmpty()) {
+                        stringParams = DSUtils.parseHttpParamsToString(bodyParameters, contentType);
+                    } else if (!rawBody.isEmpty()) {
+                        stringParams = new StringEntity(rawBody, DataParser.defaultCharset);
+                    } else {
+                        System.err.println("content-type was specified but there is not data for the body");
+                    }
+                    ((HttpEntityEnclosingRequest) postbackRequest).setEntity(stringParams);
                 }
 
+                System.out.println(String.format("Sending %s to %s", postbackMethod.toString(), postbackUrl));
+                System.out.println(String.format("With content type %s", contentType));
                 httpClient.execute(postbackRequest, postbackContext);
             } catch (Exception e) {
-                throw  new Exception("Error sending the postback: " + e.getMessage());
+                System.err.println("Error sending the postback: " + e.getMessage());
             }
         }
         else {
-            throw new Exception("URL is mandatory for sending a postback");
+            System.err.println("URL is mandatory for sending a postback");
         }
     }
 
@@ -238,7 +254,7 @@ public class Postbacks extends PostServeAction {
             bodyParameters.add(parameter);
         }
         else {
-            throw new Exception("Missing key or value for postback cookie");
+            throw new Exception("Missing key or value for postback param");
         }
     }
 }

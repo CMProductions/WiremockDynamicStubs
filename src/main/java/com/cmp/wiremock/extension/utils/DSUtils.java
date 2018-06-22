@@ -2,11 +2,15 @@ package com.cmp.wiremock.extension.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URLDecoder;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,5 +62,25 @@ public class DSUtils {
             System.err.println("Error trying to parse parameters fo JSONObject: " + ex.getMessage());
         }
         return new JSONObject(jsonString);
+    }
+
+    public static StringEntity parseHttpParamsToString(List<NameValuePair> httpParams, String contentType) throws Exception {
+        if(contentType.equals("application/x-www-form-urlencoded")) {
+            return parseListToQueryString(httpParams);
+        }
+        if (contentType.equals("application/json")) {
+            return parseListToJson(httpParams);
+        }
+        throw new Exception("content-type not supported");
+    }
+
+    private static UrlEncodedFormEntity parseListToQueryString(List<NameValuePair> httpParams) throws Exception{
+        return new UrlEncodedFormEntity(httpParams, DataParser.defaultCharset);
+    }
+
+    private static StringEntity parseListToJson(List<NameValuePair> httpParams) throws Exception {
+        JSONObject jsonParams = new JSONObject();
+        httpParams.forEach(param -> jsonParams.put(param.getName(), param.getValue()));
+        return new StringEntity(jsonParams.toString(), DataParser.defaultCharset);
     }
 }

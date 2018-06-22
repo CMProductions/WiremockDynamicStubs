@@ -31,6 +31,7 @@ public enum DSParamType {
     WITH_BODY("withBody"),
     WITH_BODY_PARAMETERS("withParameters"),
     WITH_BODY_RAWBODY("withRawBody"),
+    WITH_CONTENT_TYPE("withContentType"),
 
     //Get value params
     FROM_NEW("setFixedValue"),
@@ -45,6 +46,7 @@ public enum DSParamType {
     FROM_URL_BASEURL("gatherBaseUrl"),
     FROM_URL_PATH("gatherPath"),
     FROM_URL_QUERY_STRING("gatherQuery"),
+    FROM_CLIENT_IP("gatherClientIp"),
     FROM_HEADER("gatherHeader"),
     FROM_COOKIE("gatherCookie"),
     COMPOUND_VALUE("compoundValue"),

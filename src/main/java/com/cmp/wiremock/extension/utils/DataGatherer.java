@@ -43,7 +43,10 @@ public class DataGatherer {
             return getFromHeader(getHeaders(wiremockObject), parameter.getString(FROM_HEADER.getKey()));
         }
         if(parameter.has(FROM_COOKIE.getKey())) {
-            return getFromCookie(((Request)wiremockObject).getCookies(), parameter.getString(FROM_COOKIE.getKey()));
+            return getFromCookie(((Request) wiremockObject).getCookies(), parameter.getString(FROM_COOKIE.getKey()));
+        }
+        if (parameter.has(FROM_CLIENT_IP.getKey())) {
+            return ((Request) wiremockObject).getClientIp();
         }
         if(parameter.has(COMPOUND_VALUE.getKey())) {
             return getCompoundValue(wiremockObject, parameter.getJSONArray(COMPOUND_VALUE.getKey()));
@@ -226,7 +229,7 @@ public class DataGatherer {
     }
 
     private static String getFromHeader(HttpHeaders requestHeaders, String headerKey) {
-        return requestHeaders.getHeader(headerKey).toString();
+        return requestHeaders.getHeader(headerKey).firstValue();
     }
 
     private static String getFromCookie(Map<String, Cookie> requestCookies, String cookieKey) {
