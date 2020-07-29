@@ -1,0 +1,35 @@
+[
+  {
+    "name": "Wiremock Dynamic Stubs",
+    "description": "Allows to return data dynamically in Wiremock mocks and configure callbacks for a given API endpoint",
+    "basepath": "/",
+    "type": "dev dependency",
+    "documentation_url": "teamcmp.atlassian.net/wiki/spaces/testing/pages/126943304/Testing+Publicseek#TestingPublicseek-StubsandMocks",
+    "scope": "publicseek",
+    "prod_url": "",
+    "infrastructure": [
+      {
+        "type": "cloud",
+        "provider": "aws",
+        "accounts": [
+          "323712654428"
+            ]
+         }
+      ],
+      "logs_url":[],
+      "metrics_url":[],
+      "apm_url":[],
+      "tech_contact":"Diet developers <diet-dev@teamcmp.com>",
+      "business_contact":"",
+      "in_use":true,
+      "security":{
+         "risk":"low",
+         "self_assessment_url":""
+      },
+      "healthcheck_url":"",
+      "pipeline_url":"",
+      "dependencies":{
+         "cmp":[],
+         "saas":[]
+      }
+   }
